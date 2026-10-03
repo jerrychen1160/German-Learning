@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="德文單字">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <title>德文學習與動詞測驗</title>
+  <title>德文學習與文法測驗</title>
   <style>
     :root {
       --bg-base: #0d1117;
@@ -42,37 +42,48 @@
       padding: env(safe-area-inset-top, 20px) 16px env(safe-area-inset-bottom, 20px);
     }
 
-    /* 頂部切換 Tab */
-    .mode-switch {
-      display: flex;
-      background: var(--bg-surface);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 4px;
+    /* 頂部功能選單 (Dropdown) */
+    .menu-container {
       width: 100%;
       max-width: 440px;
       margin-bottom: 12px;
-      gap: 4px;
+      position: relative;
     }
 
-    .tab-btn {
-      flex: 1;
-      border: none;
-      padding: 8px 4px;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 0.85rem;
-      cursor: pointer;
-      background: transparent;
-      color: var(--text-sub);
-      transition: all 0.2s ease;
-      white-space: nowrap;
+    .mode-select-wrap {
+      position: relative;
+      width: 100%;
     }
 
-    .tab-btn.active {
-      background: var(--bg-elevated);
+    .mode-select {
+      width: 100%;
+      background-color: var(--bg-surface);
       color: var(--text-main);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border-color);
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      transition: border-color 0.2s;
+    }
+
+    .mode-select:focus {
+      border-color: var(--accent);
+    }
+
+    .select-arrow {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: var(--accent);
+      font-size: 0.85rem;
     }
 
     .progress-bar-container {
@@ -96,7 +107,7 @@
     .status-text {
       font-size: 0.82rem;
       color: var(--text-sub);
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       font-variant-numeric: tabular-nums;
     }
 
@@ -129,11 +140,6 @@
       border-radius: 8px;
       cursor: pointer;
       transition: all 0.2s;
-    }
-
-    .opt-toggle-btn:active {
-      background: var(--bg-elevated);
-      color: var(--text-main);
     }
 
     /* 單字卡 */
@@ -248,15 +254,16 @@
     }
 
     .quiz-question {
-      font-size: 1.3rem;
+      font-size: 1.15rem;
       font-weight: 700;
       color: var(--text-main);
       margin-top: 15px;
       margin-bottom: 16px;
-      min-height: 48px;
+      min-height: 52px;
       display: flex;
       align-items: center;
       justify-content: center;
+      line-height: 1.5;
     }
 
     .verb-infinitive {
@@ -275,7 +282,7 @@
 
     .input-box {
       width: 100%;
-      padding: 11px 14px;
+      padding: 12px 14px;
       font-size: 1rem;
       background: var(--bg-elevated);
       color: var(--text-main);
@@ -293,7 +300,7 @@
     .verb-form-group {
       width: 100%;
       text-align: left;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     .verb-form-group label {
@@ -308,16 +315,17 @@
     .char-bar {
       display: flex;
       gap: 6px;
-      margin-top: 8px;
-      margin-bottom: 14px;
+      margin-top: 6px;
+      margin-bottom: 12px;
       width: 100%;
       justify-content: center;
+      flex-wrap: wrap;
     }
 
     .char-btn {
       background: var(--bg-elevated);
       border: 1px solid var(--border-color);
-      padding: 6px 12px;
+      padding: 6px 10px;
       border-radius: 8px;
       font-size: 0.95rem;
       font-weight: 600;
@@ -376,7 +384,7 @@
       padding: 12px 14px;
       margin-top: 14px;
       font-size: 0.9rem;
-      line-height: 1.5;
+      line-height: 1.6;
       text-align: left;
       display: none;
     }
@@ -432,7 +440,6 @@
       width: auto;
     }
 
-    /* 底部 Author 署名 */
     footer.app-footer {
       margin-top: 26px;
       font-size: 0.78rem;
@@ -445,11 +452,17 @@
 </head>
 <body>
 
-  <!-- 頂部切換 Tab -->
-  <div class="mode-switch">
-    <button class="tab-btn active" id="tabCard">單字卡</button>
-    <button class="tab-btn" id="tabQuiz">單字測驗</button>
-    <button class="tab-btn" id="tabVerb">動詞三態測驗</button>
+  <!-- 頂部功能選單 (Dropdown) -->
+  <div class="menu-container">
+    <div class="mode-select-wrap">
+      <select class="mode-select" id="modeSelect">
+        <option value="card">📖 單字卡 (Flashcards)</option>
+        <option value="quiz">✍️ 單字與複數測驗 (Vokabeltest)</option>
+        <option value="verb">⚡ 動詞三態測驗 (Verbformen)</option>
+        <option value="ndekl">🧩 弱變化名詞測驗 (n-Deklination)</option>
+      </select>
+      <div class="select-arrow">▼</div>
+    </div>
   </div>
 
   <div class="progress-bar-container">
@@ -465,14 +478,12 @@
 
     <div class="card-container" id="cardContainer">
       <div class="card" id="card">
-        <!-- 正面 -->
         <div class="card-face card-front">
           <span class="page-tag" id="pageTag">S. 3</span>
           <button class="btn-audio" id="audioBtnFront" title="德語發音">🔊</button>
           <div class="word" id="frontWord">das Bulgarien</div>
           <div class="hint" id="frontHint">點擊翻面看中文</div>
         </div>
-        <!-- 背面 -->
         <div class="card-face card-back">
           <button class="btn-audio" id="audioBtnBack" style="display:none;" title="德語發音">🔊</button>
           <div class="meaning" id="backMeaning">保加利亞</div>
@@ -561,6 +572,38 @@
     </div>
   </div>
 
+  <!-- 4. 弱變化練習 Section (n-Deklination) -->
+  <div class="section-view hidden" id="ndeklSection">
+    <div class="quiz-card">
+      <span class="page-tag" id="ndeklPageTag">n-Deklination</span>
+      <button class="btn-audio" id="ndeklAudioBtn" style="display:none;" title="德語發音">🔊</button>
+      
+      <div class="quiz-question" id="ndeklSentence">載入中...</div>
+
+      <div class="verb-form-group">
+        <label>請輸入空格中的變化形式：</label>
+        <input type="text" class="input-box" id="ndeklInput" placeholder="請輸入變化後的名詞..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      </div>
+
+      <div class="char-bar">
+        <button class="char-btn" data-char="ä">ä</button>
+        <button class="char-btn" data-char="ö">ö</button>
+        <button class="char-btn" data-char="ü">ü</button>
+        <button class="char-btn" data-char="ß">ß</button>
+        <button class="char-btn" data-char="Ä">Ä</button>
+        <button class="char-btn" data-char="Ö">Ö</button>
+        <button class="char-btn" data-char="Ü">Ü</button>
+      </div>
+
+      <div class="result-box" id="ndeklResultBox"></div>
+    </div>
+
+    <div class="controls">
+      <button class="btn-ctrl" id="submitNdeklBtn">送出檢查</button>
+      <button class="btn-ctrl" id="nextNdeklBtn" style="display:none;">下一題</button>
+    </div>
+  </div>
+
   <footer class="app-footer">
     Author : Noitaiva1160
   </footer>
@@ -594,7 +637,81 @@
       { page: "S. 7", de: "die Vorlesung, -en", zh: "大學講座課、大學演講課", clean: "die Vorlesung", isNoun: true, article: "die", singular: "Vorlesung", plural: "-en" },
       { page: "S. 9", de: "wirken", zh: "產生作用、顯得/看起來/給人印象", clean: "wirken", isNoun: false, plural: null },
       { page: "S. 9", de: "die Charaktereigenschaft, -en", zh: "個性特質/性格特質", clean: "die Charaktereigenschaft", isNoun: true, article: "die", singular: "Charaktereigenschaft", plural: "-en" },
-      { page: "S. 9", de: "der Mitbewohner, - / die Mitbewohnerin, -nen", zh: "室友、樓友 (陽性)", clean: "der Mitbewohner", isNoun: true, article: "der", singular: "Mitbewohner", plural: "-" }
+      { page: "S. 9", de: "der Mitbewohner, - / die Mitbewohnerin, -nen", zh: "室友、樓友 (陽性)", clean: "der Mitbewohner", isNoun: true, article: "der", singular: "Mitbewohner", plural: "-" },
+      { page: "KB L1", de: "großzügig", zh: "大方的、慷慨的", clean: "großzügig", isNoun: false, plural: null },
+      { page: "KB L1", de: "vernünftig", zh: "理智的、通情達理的", clean: "vernünftig", isNoun: false, plural: null },
+      { page: "KB L1", de: "lebendig", zh: "活潑的、充滿生命力的", clean: "lebendig", isNoun: false, plural: null },
+      { page: "KB L1", de: "mutig", zh: "勇敢的", clean: "mutig", isNoun: false, plural: null },
+      { page: "KB L1", de: "fair", zh: "公平的、公正的", clean: "fair", isNoun: false, plural: null },
+      { page: "KB L1", de: "sparsam", zh: "節儉的、省儉的", clean: "sparsam", isNoun: false, plural: null },
+      { page: "KB L1", de: "streng", zh: "嚴格的、嚴厲的", clean: "streng", isNoun: false, plural: null },
+      { page: "KB L1", de: "arrogant", zh: "傲慢的、自大的", clean: "arrogant", isNoun: false, plural: null },
+      { page: "KB L1", de: "humorvoll", zh: "幽默的、風趣的", clean: "humorvoll", isNoun: false, plural: null },
+      { page: "KB L1", de: "finanziell", zh: "財務上的、金融的", clean: "finanziell", isNoun: false, plural: null },
+      { page: "KB L1", de: "ausgezeichnet", zh: "極好的、優秀的", clean: "ausgezeichnet", isNoun: false, plural: null },
+      { page: "KB L1", de: "chaotisch", zh: "混亂的、沒條理的", clean: "chaotisch", isNoun: false, plural: null },
+      { page: "KB L1", de: "der Abschied, -e", zh: "告別、離別", clean: "der Abschied", isNoun: true, article: "der", singular: "Abschied", plural: "-e" },
+      { page: "KB L1", de: "die Entscheidung, -en", zh: "決定、抉擇", clean: "die Entscheidung", isNoun: true, article: "die", singular: "Entscheidung", plural: "-en" },
+      { page: "KB L1", de: "die Abenteuerlust (Sg.)", zh: "冒險精神、渴望冒險", clean: "die Abenteuerlust", isNoun: true, article: "die", singular: "Abenteuerlust", plural: "(Sg.)" },
+      { page: "KB L1", de: "das Stipendium, -ien", zh: "獎學金", clean: "das Stipendium", isNoun: true, article: "das", singular: "Stipendium", plural: "-ien" },
+      { page: "KB L1", de: "die Bewerbungsunterlagen (Pl.)", zh: "求職/申請文件", clean: "die Bewerbungsunterlagen", isNoun: true, article: "die", singular: "Bewerbungsunterlagen", plural: "(Pl.)" },
+      { page: "KB L1", de: "das Vertrauen (Sg.)", zh: "信任、信賴", clean: "das Vertrauen", isNoun: true, article: "das", singular: "Vertrauen", plural: "(Sg.)" },
+      { page: "KB L1", de: "das Gegenteil, -e", zh: "相反、對立面", clean: "das Gegenteil", isNoun: true, article: "das", singular: "Gegenteil", plural: "-e" },
+      { page: "KB L1", de: "die Siedlung, -en", zh: "定居點、聚落、移民區", clean: "die Siedlung", isNoun: true, article: "die", singular: "Siedlung", plural: "-en" },
+      { page: "KB L1", de: "die Erinnerung, -en", zh: "回憶、記憶", clean: "die Erinnerung", isNoun: true, article: "die", singular: "Erinnerung", plural: "-en" },
+      { page: "KB L1", de: "die Archäologin, -nen", zh: "女考古學家", clean: "die Archäologin", isNoun: true, article: "die", singular: "Archäologin", plural: "-nen" },
+      { page: "KB L1", de: "sich verabschieden", zh: "告別、道別", clean: "sich verabschieden", isNoun: false, plural: null },
+      { page: "KB L1", de: "beeinflussen", zh: "影響、對...產生作用", clean: "beeinflussen", isNoun: false, plural: null },
+      { page: "KB L1", de: "finanzieren", zh: "資助、出資", clean: "finanzieren", isNoun: false, plural: null },
+      { page: "KB L1", de: "sich durchsetzen", zh: "克服阻礙勝出、堅持主張", clean: "sich durchsetzen", isNoun: false, plural: null },
+      { page: "KB L1", de: "vorschlagen", zh: "建議、推薦", clean: "vorschlagen", isNoun: false, plural: null },
+      { page: "KB L1", de: "enttäuschen", zh: "使失望", clean: "enttäuschen", isNoun: false, plural: null },
+      { page: "KB L1", de: "kritisieren", zh: "批評、挑剔", clean: "kritisieren", isNoun: false, plural: null },
+      { page: "KB L1", de: "verletzen", zh: "傷害(情感/身體)", clean: "verletzen", isNoun: false, plural: null },
+      { page: "KB L1", de: "verstärken", zh: "加強、增強", clean: "verstärken", isNoun: false, plural: null },
+      { page: "KB L1", de: "akzeptieren", zh: "接納、認可", clean: "akzeptieren", isNoun: false, plural: null },
+      { page: "KB L1", de: "sich entschließen", zh: "下定決心", clean: "sich entschließen", isNoun: false, plural: null },
+      { page: "KB L1", de: "klug", zh: "聰明的、機靈的", clean: "klug", isNoun: false, plural: null },
+      { page: "KB L1", de: "ordentlich", zh: "整潔的、有條理的", clean: "ordentlich", isNoun: false, plural: null },
+      { page: "KB L1", de: "hübsch", zh: "漂亮的、清秀的", clean: "hübsch", isNoun: false, plural: null },
+      { page: "KB L1", de: "nervös", zh: "緊張不安的", clean: "nervös", isNoun: false, plural: null },
+      { page: "KB L1", de: "kreativ", zh: "有創意的", clean: "kreativ", isNoun: false, plural: null },
+      { page: "KB L1", de: "sympathisch", zh: "讓人有好感的、討喜的", clean: "sympathisch", isNoun: false, plural: null },
+      { page: "KB L1", de: "schwierig", zh: "困難的、複雜的", clean: "schwierig", isNoun: false, plural: null },
+      { page: "KB L1", de: "wahnsinnig", zh: "極度地、狂熱地 (副詞)", clean: "wahnsinnig", isNoun: false, plural: null },
+      { page: "KB L1", de: "ziemlich", zh: "相當地、蠻...的 (副詞)", clean: "ziemlich", isNoun: false, plural: null },
+      { page: "KB L1", de: "besonders", zh: "特別地、尤其 (副詞)", clean: "besonders", isNoun: false, plural: null },
+      { page: "KB L1", de: "möglichst", zh: "盡可能地 (副詞)", clean: "möglichst", isNoun: false, plural: null },
+      { page: "KB L1", de: "perfekt", zh: "完美的", clean: "perfekt", isNoun: false, plural: null },
+      { page: "KB L1", de: "sozial", zh: "合群的、具社會責任感的", clean: "sozial", isNoun: false, plural: null },
+      { page: "KB L1", de: "das Abenteuer, -", zh: "冒險", clean: "das Abenteuer", isNoun: true, article: "das", singular: "Abenteuer", plural: "-" },
+      { page: "KB L1", de: "der Mut (Sg.)", zh: "勇氣", clean: "der Mut", isNoun: true, article: "der", singular: "Mut", plural: "(Sg.)" },
+      { page: "KB L1", de: "der Humor (Sg.)", zh: "幽默感", clean: "der Humor", isNoun: true, article: "der", singular: "Humor", plural: "(Sg.)" },
+      { page: "KB L1", de: "die Freude, -n", zh: "喜悅、高興", clean: "die Freude", isNoun: true, article: "die", singular: "Freude", plural: "-n" },
+      { page: "KB L1", de: "die Dame, -n", zh: "女士", clean: "die Dame", isNoun: true, article: "die", singular: "Dame", plural: "-n" },
+      { page: "KB L1", de: "der Kollege, -n", zh: "男同事 (弱變化)", clean: "der Kollege", isNoun: true, article: "der", singular: "Kollege", plural: "-n" },
+      { page: "KB L1", de: "die Stärke, -n", zh: "優點、長處", clean: "die Stärke", isNoun: true, article: "die", singular: "Stärke", plural: "-n" },
+      { page: "KB L1", de: "die Schwäche, -n", zh: "缺點、弱點", clean: "die Schwäche", isNoun: true, article: "die", singular: "Schwäche", plural: "-n" },
+      { page: "KB L1", de: "der Praktikant, -en", zh: "男實習生 (弱變化)", clean: "der Praktikant", isNoun: true, article: "der", singular: "Praktikant", plural: "-en" },
+      { page: "KB L1", de: "der Kunde, -n", zh: "男客戶 (弱變化)", clean: "der Kunde", isNoun: true, article: "der", singular: "Kunde", plural: "-n" },
+      { page: "KB L1", de: "der Nachbar, -n", zh: "男鄰居 (弱變化)", clean: "der Nachbar", isNoun: true, article: "der", singular: "Nachbar", plural: "-n" },
+      { page: "KB L1", de: "der Mensch, -en", zh: "人、人類 (弱變化)", clean: "der Mensch", isNoun: true, article: "der", singular: "Mensch", plural: "-en" },
+      { page: "KB L1", de: "die Unterlagen (Pl.)", zh: "資料、文件", clean: "die Unterlagen", isNoun: true, article: "die", singular: "Unterlagen", plural: "(Pl.)" },
+      { page: "KB L1", de: "die WG, -s", zh: "合租公寓 (Wohngemeinschaft)", clean: "die WG", isNoun: true, article: "die", singular: "WG", plural: "-s" },
+      { page: "KB L1", de: "der Witz, -e", zh: "笑話", clean: "der Witz", isNoun: true, article: "der", singular: "Witz", plural: "-e" },
+      { page: "KB L1", de: "die Mittagspause, -n", zh: "午休時間", clean: "die Mittagspause", isNoun: true, article: "die", singular: "Mittagspause", plural: "-n" },
+      { page: "KB L1", de: "der Erwachsene, -n", zh: "成年人 (形容詞名詞化)", clean: "der Erwachsene", isNoun: true, article: "der", singular: "Erwachsene", plural: "-n" },
+      { page: "KB L1", de: "einschlafen", zh: "入睡、睡著", clean: "einschlafen", isNoun: false, plural: null },
+      { page: "KB L1", de: "ordnen", zh: "整理、排列", clean: "ordnen", isNoun: false, plural: null },
+      { page: "KB L1", de: "erleben", zh: "經歷、體會", clean: "erleben", isNoun: false, plural: null },
+      { page: "KB L1", de: "stören", zh: "打擾、干擾", clean: "stören", isNoun: false, plural: null },
+      { page: "KB L1", de: "sich bedanken", zh: "道謝、致謝", clean: "sich bedanken", isNoun: false, plural: null },
+      { page: "KB L1", de: "aufräumen", zh: "整理、收拾 (房間)", clean: "aufräumen", isNoun: false, plural: null },
+      { page: "KB L1", de: "kennenlernen", zh: "認識、結識", clean: "kennenlernen", isNoun: false, plural: null },
+      { page: "KB L1", de: "vermissen", zh: "想念、懷念", clean: "vermissen", isNoun: false, plural: null },
+      { page: "KB L1", de: "einziehen", zh: "搬入、遷入新居", clean: "einziehen", isNoun: false, plural: null },
+      { page: "KB L1", de: "unternehmen", zh: "從事 (活動)", clean: "unternehmen", isNoun: false, plural: null },
+      { page: "KB L1", de: "verdienen", zh: "賺取 (金錢)", clean: "verdienen", isNoun: false, plural: null }
     ];
 
     const rawVerbs = [
@@ -630,27 +747,244 @@
       { inf: "unterstützen", praesens: ["unterstützt", "er unterstützt"], praet: "unterstützte", perfekt: ["hat unterstützt"], zh: "支持, 支援" }
     ];
 
-    const commonPluralPool = ["-en", "-e", "-er", "-n", "-s", "-", "(Sg.)", "-nen"];
+    // 弱變化測驗題庫：已完整加入 translation (中文翻譯)
+    const rawNDeklExercises = [
+      {
+        sentence: "Der Chef führt ein wichtiges Gespräch mit _____ über das neue Projekt. (der Kollege)",
+        baseWord: "der Kollege",
+        accepted: ["dem Kollegen", "Kollegen"],
+        translation: "主管正在與那位同事就新專案進行一場重要談話。",
+        explanation: "mit + Dativ ➔ dem Kollegen（陽性結尾 -e 弱變化單數三格加 -n）。"
+      },
+      {
+        sentence: "Die Polizei sucht seit gestern Abend nach _____. (der Zeuge)",
+        baseWord: "der Zeuge",
+        accepted: ["dem Zeugen", "Zeugen"],
+        translation: "警方從昨天傍晚開始就在尋找那位目擊證人。",
+        explanation: "nach + Dativ ➔ dem Zeugen（der Zeuge 為弱變化名詞，單數三格加 -n）。"
+      },
+      {
+        sentence: "Hast du _____ schon nach dem Weg zum Hauptbahnhof gefragt? (der Polizist)",
+        baseWord: "der Polizist",
+        accepted: ["den Polizisten", "Polizisten"],
+        translation: "你已經問過那位警察去火車總站的路了嗎？",
+        explanation: "fragen + Akkusativ ➔ den Polizisten（-ist 字尾名詞為弱變化，加 -en）。"
+      },
+      {
+        sentence: "Der Arzt untersucht heute einen neuen _____. (der Patient)",
+        baseWord: "der Patient",
+        accepted: ["Patienten"],
+        translation: "醫生今天正在檢查一位新病患。",
+        explanation: "Akkusativ（前已有 einen）➔ Patienten（-ent 字尾為弱變化，加 -en）。"
+      },
+      {
+        sentence: "Wir haben im Zoo _____ bei der Fütterung beobachtet. (der Elefant)",
+        baseWord: "der Elefant",
+        accepted: ["den Elefanten", "Elefanten"],
+        translation: "我們在動物園觀察了那隻大象進食。",
+        explanation: "Akkusativ ➔ den Elefanten（-ant 字尾為弱變化動物名詞，加 -en）。"
+      },
+      {
+        sentence: "Das spannende Interview mit _____ wird morgen im Radio ausgestrahlt. (der Biologe)",
+        baseWord: "der Biologe",
+        accepted: ["dem Biologen", "Biologen"],
+        translation: "與那位生物學家的精彩訪談將於明天在廣播中播出。",
+        explanation: "mit + Dativ ➔ dem Biologen（-oge 專業名詞為弱變化，加 -n）。"
+      },
+      {
+        sentence: "Die Universität zeichnet _____ für seine herausragende Forschungsarbeit aus. (der Psychologe)",
+        baseWord: "der Psychologe",
+        accepted: ["den Psychologen", "Psychologen"],
+        translation: "大學表彰了那位心理學家傑出的研究成果。",
+        explanation: "auszeichnen + Akkusativ ➔ den Psychologen（-oge 字尾加 -n）。"
+      },
+      {
+        sentence: "Die Delegation verhandelt direkt mit _____ des Nachbarlandes. (der Diplomat)",
+        baseWord: "der Diplomat",
+        accepted: ["dem Diplomaten", "Diplomaten"],
+        translation: "代表團正直接與鄰國的外交官進行談判。",
+        explanation: "mit + Dativ ➔ dem Diplomaten（-at 外來語字尾為弱變化，加 -en）。"
+      },
+      {
+        sentence: "Die Journalisten warten ungeduldig auf die Ankunft _____ im Rathaus. (der Präsident)",
+        baseWord: "der Präsident",
+        accepted: ["des Präsidenten", "Präsidenten"],
+        translation: "記者們在市政廳焦急地等待總統的抵達。",
+        explanation: "Genitiv（二格）➔ des Präsidenten（弱變化名詞第二格不加 -s，加 -en）。"
+      },
+      {
+        sentence: "Der Tierpfleger kümmert sich jeden Morgen um _____. (der Löwe)",
+        baseWord: "der Löwe",
+        accepted: ["den Löwen", "Löwen"],
+        translation: "動物飼養員每天早上都會照料那隻獅子。",
+        explanation: "um + Akkusativ ➔ den Löwen（-e 結尾動物名詞為弱變化，加 -n）。"
+      },
+      {
+        sentence: "Im Wald haben die Wanderer vorsichtig aus der Ferne _____ gesehen. (ein Bär)",
+        baseWord: "ein Bär",
+        accepted: ["einen Bären", "Bären"],
+        translation: "登山客在森林裡遠遠地小心看見了一隻熊。",
+        explanation: "Akkusativ ➔ einen Bären（der Bär 為單音節弱變化名詞，加 -en）。"
+      },
+      {
+        sentence: "Ich habe gestern im Supermarkt zufällig meinen alten _____ getroffen. (der Nachbar)",
+        baseWord: "der Nachbar",
+        accepted: ["Nachbarn"],
+        translation: "我昨天在超市巧遇了我以前的老鄰居。",
+        explanation: "Akkusativ（前已有 meinen alten）➔ Nachbarn（der Nachbar 為少數 -r 結尾弱變化）。"
+      },
+      {
+        sentence: "Der Lehrer erklärt _____ die komplizierte Grammatikregel noch einmal. (der Franzose)",
+        baseWord: "der Franzose",
+        accepted: ["dem Franzosen", "Franzosen"],
+        translation: "老師向那位法國人再次講解了這條複雜的文法規則。",
+        explanation: "erklären + Dativ ➔ dem Franzosen（國籍字尾 -e 為弱變化，加 -n）。"
+      },
+      {
+        sentence: "Alle Mitarbeiter vertrauen den Entscheidungen unseres neuen _____. (der Geschäftsführer)",
+        baseWord: "der Geschäftsführer",
+        accepted: ["Geschäftsführers"],
+        translation: "所有員工都信任我們新總經理的決定。",
+        explanation: "⚠️ 陷阱題！der Geschäftsführer 不是弱變化，普通陽性第二格加 -s ➔ Geschäftsführers。"
+      },
+      {
+        sentence: "Ich gratuliere dir von ganzem _____ zum Geburtstag! (das Herz)",
+        baseWord: "das Herz",
+        accepted: ["Herzen"],
+        translation: "我衷心地祝你生日快樂！",
+        explanation: "von ganzem + Dativ ➔ Herzen（das Herz 單數三格加 -en，為中性混合弱變化）。"
+      },
+      {
+        sentence: "Der Kardiologe untersucht heute _____ des Patienten sehr gründlich. (das Herz)",
+        baseWord: "das Herz",
+        accepted: ["das Herz", "Herz"],
+        translation: "心臟科醫生今天非常仔細地檢查了病人的心臟。",
+        explanation: "⚠️ 注意！das Herz 在四格（Akkusativ）維持原形 das Herz，不加 -en！"
+      },
+      {
+        sentence: "Die Tiefe des menschlichen _____ bleibt oft ein Geheimnis. (das Herz)",
+        baseWord: "das Herz",
+        accepted: ["Herzens"],
+        translation: "人類心靈的深處往往仍是一個謎。",
+        explanation: "Genitiv ➔ des Herzens（das Herz 在第二格加 -ens）。"
+      },
+      {
+        sentence: "Haben Sie heute Morgen schon mit _____ Schmidt aus der Buchhaltung gesprochen? (Herr)",
+        baseWord: "Herr",
+        accepted: ["Herrn"],
+        translation: "您今天早上跟會計部的施密特先生談過了嗎？",
+        explanation: "mit + Dativ ➔ Herrn（der Herr 單數除第一格外一律加 -n）。"
+      },
+      {
+        sentence: "Die Assistentin begrüßt _____ am Empfang und führt ihn ins Büro. (der Herr)",
+        baseWord: "der Herr",
+        accepted: ["den Herrn", "Herrn"],
+        translation: "助理在櫃台接待了那位先生，並引領他走進辦公室。",
+        explanation: "begrüßen + Akkusativ ➔ den Herrn（der Herr 單數四格加 -n）。"
+      },
+      {
+        sentence: "Können Sie mir bitte die korrekte Schreibweise Ihres _____ buchstabieren? (der Name)",
+        baseWord: "der Name",
+        accepted: ["Namens"],
+        translation: "能請您拼寫一下您姓名的正確寫法嗎？",
+        explanation: "Genitiv（前已有 Ihres）➔ Namens（der Name 特殊混合變化，二格加 -ns）。"
+      },
+      {
+        sentence: "Ich kann mich leider nicht mehr an _____ dieser interessanten Theorie erinnern. (der Gedanke)",
+        baseWord: "der Gedanke",
+        accepted: ["den Gedanken", "Gedanken"],
+        translation: "可惜我已經想不起這個有趣理論的思路了。",
+        explanation: "sich erinnern an + Akkusativ ➔ den Gedanken（四格加 -n）。"
+      },
+      {
+        sentence: "Wo ein starker Wille ist, da ist auch ein Weg. Kennst du die Bedeutung des freien _____? (der Wille)",
+        baseWord: "der Wille",
+        accepted: ["Willens"],
+        translation: "有志者事竟成。你知道自由意志的意涵嗎？",
+        explanation: "Genitiv ➔ des Willens（der Wille 特殊混合變化，二格加 -ns）。"
+      },
+      {
+        sentence: "Meine Damen und _____, herzlich willkommen zu unserer heutigen Vorstellung! (der Herr, Plural)",
+        baseWord: "der Herr (Plural)",
+        accepted: ["Herren"],
+        translation: "女士們、先生們，衷心歡迎各位蒞臨我們今天的演出！",
+        explanation: "複數呼語 ➔ Herren（注意：der Herr 單數是 Herrn，複數為 Herren）。"
+      },
+      {
+        sentence: "Die Firma bietet im Sommer spezielle Schulungen für fünf neue _____ an. (der Praktikant, Plural)",
+        baseWord: "der Praktikant (Plural)",
+        accepted: ["Praktikanten"],
+        translation: "公司在夏天為五位新實習生提供特別培訓課程。",
+        explanation: "Akkusativ Plural ➔ Praktikanten（弱變化名詞複數與單數變化形皆為 -en）。"
+      },
+      {
+        sentence: "Das Seminar richtet sich an alle ausländischen _____ im ersten Semester. (der Student, Plural)",
+        baseWord: "der Student (Plural)",
+        accepted: ["Studenten"],
+        translation: "這門研討課面向所有第一學期的外國大學生。",
+        explanation: "an + Akkusativ Plural ➔ alle ausländischen Studenten。"
+      },
+      {
+        sentence: "Der Professor diskutiert im Seminar mit vielen interessierten _____. (der Biologe, Plural)",
+        baseWord: "der Biologe (Plural)",
+        accepted: ["Biologen"],
+        translation: "教授在研討課上與許多感興趣的生物學者進行討論。",
+        explanation: "mit + Dativ Plural ➔ Biologen（複數三格依然加 -n）。"
+      },
+      {
+        sentence: "Die Leserschaft wartet gespannt auf den neuen Roman dieses berühmten _____. (der Autor)",
+        baseWord: "der Autor",
+        accepted: ["Autors"],
+        translation: "讀者群正滿懷期待地等著這位著名作家的新小說。",
+        explanation: "⚠️ 陷阱題！der Autor 不是弱變化名詞（複數加 -en 但單數走強變化），二格加 -s ➔ Autors。"
+      },
+      {
+        sentence: "Wir haben während der Konferenz den Vortrag eines bekannten _____ gehört. (der Professor)",
+        baseWord: "der Professor",
+        accepted: ["Professors"],
+        translation: "在會議期間，我們聽了一位知名教授的演講。",
+        explanation: "⚠️ 陷阱題！der Professor 不是弱變化名詞，二格強變化加 -s ➔ Professors。"
+      },
+      {
+        sentence: "Die Reform stärkt die wirtschaftliche Unabhängigkeit des modernen _____. (der Staat)",
+        baseWord: "der Staat",
+        accepted: ["Staates", "Staats"],
+        translation: "這項改革增強了現代國家的經濟獨立性。",
+        explanation: "⚠️ 陷阱題！der Staat 複數雖然是 die Staaten，但單數為強變化，二格為 des Staates。"
+      },
+      {
+        sentence: "Die Personalabteilung sucht dringend einen qualifizierten _____ für den Bereich Robotik. (der Ingenieur)",
+        baseWord: "der Ingenieur",
+        accepted: ["Ingenieur"],
+        translation: "人資部門正急聘一位機器人領域的合格工程師。",
+        explanation: "⚠️ 陷阱題！der Ingenieur 不是弱變化，單數 Akkusativ 維持原形 Ingenieur。"
+      }
+    ];
+
+    const commonPluralPool = ["-en", "-e", "-er", "-n", "-s", "-", "(Sg.)", "-nen", "-ien"];
 
     let vocabList = [...rawVocabulary];
     let verbList = [...rawVerbs];
+    let ndeklList = [...rawNDeklExercises];
     let currentIndex = 0;
     let currentVerbIndex = 0;
+    let currentNDeklIndex = 0;
     let currentActiveInput = null;
     let selectedPlural = null;
     let isQuizAnswered = false;
     let isVerbAnswered = false;
+    let isNDeklAnswered = false;
     let isChineseFront = false;
 
-    const tabCard = document.getElementById('tabCard');
-    const tabQuiz = document.getElementById('tabQuiz');
-    const tabVerb = document.getElementById('tabVerb');
+    const modeSelect = document.getElementById('modeSelect');
     const cardSection = document.getElementById('cardSection');
     const quizSection = document.getElementById('quizSection');
     const verbSection = document.getElementById('verbSection');
+    const ndeklSection = document.getElementById('ndeklSection');
     const progressBar = document.getElementById('progressBar');
     const statusText = document.getElementById('status');
 
+    // 單字卡元素
     const card = document.getElementById('card');
     const cardContainer = document.getElementById('cardContainer');
     const frontWord = document.getElementById('frontWord');
@@ -665,6 +999,7 @@
     const shuffleBtn = document.getElementById('shuffleBtn');
     const flipModeToggleBtn = document.getElementById('flipModeToggleBtn');
 
+    // 單字測驗元素
     const quizPageTag = document.getElementById('quizPageTag');
     const quizPrompt = document.getElementById('quizPrompt');
     const quizInput = document.getElementById('quizInput');
@@ -675,6 +1010,7 @@
     const nextQuizBtn = document.getElementById('nextQuizBtn');
     const quizAudioBtn = document.getElementById('quizAudioBtn');
 
+    // 動詞三態測驗元素
     const verbPageTag = document.getElementById('verbPageTag');
     const verbInfinitive = document.getElementById('verbInfinitive');
     const verbMeaning = document.getElementById('verbMeaning');
@@ -686,6 +1022,15 @@
     const nextVerbBtn = document.getElementById('nextVerbBtn');
     const verbAudioBtn = document.getElementById('verbAudioBtn');
 
+    // 弱變化測驗元素
+    const ndeklSentence = document.getElementById('ndeklSentence');
+    const ndeklInput = document.getElementById('ndeklInput');
+    const ndeklResultBox = document.getElementById('ndeklResultBox');
+    const submitNdeklBtn = document.getElementById('submitNdeklBtn');
+    const nextNdeklBtn = document.getElementById('nextNdeklBtn');
+    const ndeklAudioBtn = document.getElementById('ndeklAudioBtn');
+
+    // 德語語音支援
     let germanVoice = null;
     function loadGermanVoice() {
       if (!('speechSynthesis' in window)) return;
@@ -711,27 +1056,28 @@
       window.speechSynthesis.speak(utterance);
     }
 
+    // 模式切換邏輯
     function switchMode(mode) {
-      tabCard.classList.toggle('active', mode === 'card');
-      tabQuiz.classList.toggle('active', mode === 'quiz');
-      tabVerb.classList.toggle('active', mode === 'verb');
-
       cardSection.classList.toggle('hidden', mode !== 'card');
       quizSection.classList.toggle('hidden', mode !== 'quiz');
       verbSection.classList.toggle('hidden', mode !== 'verb');
+      ndeklSection.classList.toggle('hidden', mode !== 'ndekl');
 
       if (mode === 'verb') {
         updateVerbDisplay();
         inputPraesens.focus();
+      } else if (mode === 'ndekl') {
+        updateNDeklDisplay();
+        ndeklInput.focus();
       } else {
         updateDisplay();
         if (mode === 'quiz') quizInput.focus();
       }
     }
 
-    tabCard.addEventListener('click', () => switchMode('card'));
-    tabQuiz.addEventListener('click', () => switchMode('quiz'));
-    tabVerb.addEventListener('click', () => switchMode('verb'));
+    modeSelect.addEventListener('change', (e) => {
+      switchMode(e.target.value);
+    });
 
     flipModeToggleBtn.addEventListener('click', () => {
       isChineseFront = !isChineseFront;
@@ -747,7 +1093,6 @@
       card.classList.remove('flipped');
       setTimeout(() => {
         if (!isChineseFront) {
-          // 德文在正面：喇叭放在正面，背面不放
           frontWord.textContent = item.de;
           backMeaning.textContent = item.zh;
           frontHint.textContent = "點擊翻面看中文";
@@ -755,7 +1100,6 @@
           audioBtnFront.style.display = "flex";
           audioBtnBack.style.display = "none";
         } else {
-          // 中文在正面：正面不放喇叭，背面（德文）顯示喇叭
           frontWord.textContent = item.zh;
           backMeaning.textContent = item.de;
           frontHint.textContent = "點擊翻面看德文";
@@ -789,7 +1133,7 @@
         options.forEach(opt => {
           const btn = document.createElement('button');
           btn.className = 'plural-btn';
-          btn.textContent = opt === "(Sg.)" ? "僅單數 (Sg.)" : opt;
+          btn.textContent = opt === "(Sg.)" ? "僅單數 (Sg.)" : (opt === "(Pl.)" ? "僅複數 (Pl.)" : opt);
           btn.onclick = () => {
             if (isQuizAnswered) return;
             document.querySelectorAll('.plural-btn').forEach(b => b.classList.remove('selected'));
@@ -821,7 +1165,23 @@
       isVerbAnswered = false;
     }
 
-    [quizInput, inputPraesens, inputPraeteritum, inputPerfekt].forEach(input => {
+    function updateNDeklDisplay() {
+      const q = ndeklList[currentNDeklIndex];
+      statusText.textContent = `弱變化測驗：第 ${currentNDeklIndex + 1} / ${ndeklList.length} 題`;
+      progressBar.style.width = `${((currentNDeklIndex + 1) / ndeklList.length) * 100}%`;
+
+      ndeklSentence.textContent = q.sentence;
+      ndeklInput.value = '';
+      ndeklResultBox.className = 'result-box';
+      ndeklResultBox.innerHTML = '';
+      submitNdeklBtn.style.display = 'block';
+      nextNdeklBtn.style.display = 'none';
+      ndeklAudioBtn.style.display = 'none';
+      isNDeklAnswered = false;
+    }
+
+    // 焦點綁定與字元輸入盤
+    [quizInput, inputPraesens, inputPraeteritum, inputPerfekt, ndeklInput].forEach(input => {
       input.addEventListener('focus', () => { currentActiveInput = input; });
     });
 
@@ -829,20 +1189,18 @@
       btn.addEventListener('click', (e) => {
         e.preventDefault();
         const char = btn.getAttribute('data-char');
-        const target = currentActiveInput || (verbSection.classList.contains('hidden') ? quizInput : inputPraesens);
+        const target = currentActiveInput || quizInput;
         target.value += char;
         target.focus();
       });
     });
 
-    // 翻牌純翻轉，不觸發自動朗讀
     cardContainer.addEventListener('click', (e) => {
       if (!e.target.closest('.btn-audio')) {
         card.classList.toggle('flipped');
       }
     });
 
-    // 正面與背面喇叭統一呼叫德語發音
     function triggerAudio(e) {
       e.stopPropagation();
       speak(vocabList[currentIndex].clean);
@@ -854,6 +1212,10 @@
     verbAudioBtn.addEventListener('click', () => {
       const v = verbList[currentVerbIndex];
       speak(`${v.inf}. ${v.praesens[0]}. ${v.praet}. ${v.perfekt[0]}`);
+    });
+    ndeklAudioBtn.addEventListener('click', () => {
+      const q = ndeklList[currentNDeklIndex];
+      speak(q.accepted[0]);
     });
 
     prevBtn.addEventListener('click', () => {
@@ -981,7 +1343,60 @@
       inputPraesens.focus();
     });
 
+    // 弱變化測驗檢查邏輯：結果中清晰標示「句子中文翻譯」
+    function checkNDeklAnswer() {
+      if (isNDeklAnswered) return;
+      const q = ndeklList[currentNDeklIndex];
+      const userVal = ndeklInput.value.trim().toLowerCase();
+      const isCorrect = q.accepted.some(ans => ans.toLowerCase() === userVal);
+
+      if (isCorrect) {
+        ndeklResultBox.className = 'result-box correct';
+        ndeklResultBox.innerHTML = `🎉 <strong>回答正確！</strong><br>
+        標準解答：<strong>${q.accepted[0]}</strong><br>
+        📝 <strong>中文翻譯：</strong>${q.translation}<br>
+        💡 <strong>文法解析：</strong>${q.explanation}`;
+      } else {
+        ndeklResultBox.className = 'result-box incorrect';
+        ndeklResultBox.innerHTML = `❌ <strong>答案有誤！</strong><br>
+        你的回答：${ndeklInput.value || '(未填寫)'}<br>
+        標準解答：<strong>${q.accepted[0]}</strong><br>
+        📝 <strong>中文翻譯：</strong>${q.translation}<br>
+        💡 <strong>文法解析：</strong>${q.explanation}`;
+      }
+
+      speak(q.accepted[0]);
+      ndeklAudioBtn.style.display = 'flex';
+      submitNdeklBtn.style.display = 'none';
+      nextNdeklBtn.style.display = 'block';
+      isNDeklAnswered = true;
+    }
+
+    submitNdeklBtn.addEventListener('click', checkNDeklAnswer);
+    ndeklInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        if (!isNDeklAnswered) checkNDeklAnswer();
+        else nextNdeklBtn.click();
+      }
+    });
+
+    nextNdeklBtn.addEventListener('click', () => {
+      currentNDeklIndex = (currentNDeklIndex + 1) % ndeklList.length;
+      updateNDeklDisplay();
+      ndeklInput.focus();
+    });
+
+    quizInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        if (!isQuizAnswered) submitBtn.click();
+        else nextQuizBtn.click();
+      }
+    });
+
+    // 初始化洗牌
+    vocabList.sort(() => 0.5 - Math.random());
     verbList.sort(() => 0.5 - Math.random());
+    ndeklList.sort(() => 0.5 - Math.random());
     updateDisplay();
   </script>
 </body>
