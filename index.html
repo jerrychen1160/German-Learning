@@ -2,83 +2,120 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <!-- 針對 iPhone 螢幕與安全區域優化 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <!-- 支援 iOS Web App 全螢幕模式 -->
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="德文單字">
-  <title>德文單字卡 - Lektion 1</title>
+  <title>德文單字學習與測驗</title>
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <style>
+    /* 灰黑現代風色彩系統 */
     :root {
-      --primary: #2d5a88;
-      --secondary: #1a365d;
-      --background: #f0f3f6;
-      --card-bg: #ffffff;
-      --text: #2d3748;
+      --bg-base: #0d1117;          /* 極致深灰底色 */
+      --bg-surface: #161b22;       /* 卡片與元件表面 */
+      --bg-elevated: #21262d;      /* 浮動層/按鈕背景 */
+      --border-color: #30363d;     /* 現代細邊框色 */
+      --text-main: #f0f6fc;        /* 亮白主文字 */
+      --text-sub: #8b949e;         /* 低彩度次要文字 */
+      --accent: #2596be;           /* 現代科技藍 */
+      --accent-hover: #2596be;
+      --correct: #94d92e;          /* 科技翡翠綠 */
+      --correct-bg: rgba(46, 160, 67, 0.15);
+      --incorrect: #f85149;        /* 警示亮紅 */
+      --incorrect-bg: rgba(248, 81, 73, 0.15);
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       -webkit-tap-highlight-color: transparent;
-      user-select: none;
     }
 
     body {
-      background-color: var(--background);
-      color: var(--text);
+      background-color: var(--bg-base);
+      color: var(--text-main);
       display: flex;
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
-      padding: env(safe-area-inset-top, 20px) 16px env(safe-area-inset-bottom, 20px);
-      touch-action: pan-y;
+      padding: env(safe-area-inset-top, 24px) 16px env(safe-area-inset-bottom, 24px);
     }
 
-    header {
+    /* 頂部切換 Tab */
+    .mode-switch {
+      display: flex;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 4px;
       width: 100%;
       max-width: 420px;
-      text-align: center;
-      margin-top: 10px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
-    header h1 {
-      font-size: 1.35rem;
-      color: var(--secondary);
-      font-weight: 700;
-      margin-bottom: 6px;
+    .tab-btn {
+      flex: 1;
+      border: none;
+      padding: 10px 0;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.92rem;
+      cursor: pointer;
+      background: transparent;
+      color: var(--text-sub);
+      transition: all 0.2s ease;
     }
 
+    .tab-btn.active {
+      background: var(--bg-elevated);
+      color: var(--text-main);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    /* 進度條 */
     .progress-bar-container {
       width: 100%;
-      background-color: #e2e8f0;
+      max-width: 420px;
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
       border-radius: 999px;
       overflow: hidden;
       margin-bottom: 8px;
-      height: 8px;
+      height: 6px;
     }
 
     .progress-bar {
       height: 100%;
       width: 0%;
-      background-color: var(--primary);
+      background: linear-gradient(90deg, #1f6feb, var(--accent));
       transition: width 0.25s ease;
     }
 
     .status-text {
-      font-size: 0.85rem;
-      color: #718096;
+      font-size: 0.82rem;
+      color: var(--text-sub);
+      margin-bottom: 14px;
+      font-variant-numeric: tabular-nums;
     }
 
-    /* 3D 卡片結構 */
+    .section-view {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* 翻牌卡片設計 */
     .card-container {
       perspective: 1000px;
       width: 100%;
-      max-width: 420px;
       height: 290px;
       cursor: pointer;
     }
@@ -89,7 +126,6 @@
       position: relative;
       transform-style: preserve-3d;
       transition: transform 0.5s cubic-bezier(0.35, 1, 0.35, 1);
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
       border-radius: 20px;
     }
 
@@ -103,39 +139,43 @@
       height: 100%;
       backface-visibility: hidden;
       border-radius: 20px;
-      background: var(--card-bg);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       padding: 24px 20px;
       text-align: center;
+      user-select: none;
     }
 
     .card-back {
       transform: rotateY(180deg);
-      background: #fafafa;
+      background: #181d24;
     }
 
     .page-tag {
       position: absolute;
-      top: 18px;
+      top: 16px;
       left: 18px;
       font-size: 0.75rem;
       font-weight: 600;
-      background: #edf2f7;
+      background: var(--bg-elevated);
+      color: var(--text-sub);
       padding: 4px 10px;
       border-radius: 8px;
-      color: #4a5568;
+      border: 1px solid var(--border-color);
     }
 
     .btn-audio {
       position: absolute;
       top: 14px;
       right: 14px;
-      background: #edf2f7;
-      border: none;
-      font-size: 1.2rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-color);
+      font-size: 1.15rem;
       width: 38px;
       height: 38px;
       border-radius: 50%;
@@ -143,37 +183,177 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
+      color: var(--text-main);
+      transition: transform 0.1s ease;
+    }
+
+    .btn-audio:active {
+      transform: scale(0.92);
     }
 
     .word {
-      font-size: 1.55rem;
+      font-size: 1.6rem;
       font-weight: 700;
-      color: var(--secondary);
+      color: var(--text-main);
       line-height: 1.35;
       margin-bottom: 12px;
-      padding: 0 8px;
+      letter-spacing: -0.01em;
     }
 
     .meaning {
       font-size: 1.25rem;
       font-weight: 500;
-      color: #1a202c;
+      color: #e6edf3;
       line-height: 1.6;
-      padding: 0 8px;
     }
 
     .hint {
       position: absolute;
       bottom: 18px;
       font-size: 0.78rem;
-      color: #a0aec0;
+      color: var(--text-sub);
     }
 
-    /* 手機按鈕 */
+    /* 測驗區塊面板 */
+    .quiz-card {
+      width: 100%;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 22px 18px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .quiz-question {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-top: 15px;
+      margin-bottom: 18px;
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .input-box {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 1.05rem;
+      background: var(--bg-elevated);
+      color: var(--text-main);
+      border: 1.5px solid var(--border-color);
+      border-radius: 12px;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .input-box:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.2);
+    }
+
+    /* 德文字元輸入盤 */
+    .char-bar {
+      display: flex;
+      gap: 6px;
+      margin-top: 10px;
+      margin-bottom: 14px;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .char-btn {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-color);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+
+    .char-btn:active {
+      background: var(--border-color);
+    }
+
+    /* 複數選單 */
+    .plural-section {
+      width: 100%;
+      margin-top: 10px;
+      text-align: left;
+    }
+
+    .plural-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-sub);
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .plural-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .plural-btn {
+      background: var(--bg-elevated);
+      border: 1.5px solid var(--border-color);
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .plural-btn.selected {
+      background: rgba(88, 166, 255, 0.15);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* 反饋結果 */
+    .result-box {
+      width: 100%;
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 16px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      text-align: left;
+      display: none;
+    }
+
+    .result-box.correct {
+      display: block;
+      background: var(--correct-bg);
+      color: var(--correct);
+      border: 1px solid rgba(63, 185, 80, 0.4);
+    }
+
+    .result-box.incorrect {
+      display: block;
+      background: var(--incorrect-bg);
+      color: var(--incorrect);
+      border: 1px solid rgba(248, 81, 73, 0.4);
+    }
+
+    /* 底部導覽按鈕 */
     .controls {
       display: flex;
       gap: 10px;
-      margin-top: 24px;
+      margin-top: 20px;
       width: 100%;
       max-width: 420px;
     }
@@ -186,178 +366,361 @@
       font-weight: 600;
       cursor: pointer;
       flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background-color: var(--primary);
-      color: #fff;
+      background-color: var(--accent);
+      color: #0b0f14;
+      transition: all 0.15s;
     }
 
     button.btn-ctrl:active {
-      opacity: 0.8;
       transform: scale(0.98);
+      background-color: var(--accent-hover);
     }
 
-    button.btn-shuffle {
-      background-color: #edf2f7;
-      color: #4a5568;
+    button.btn-secondary {
+      background-color: var(--bg-surface);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
       flex: 0.8;
+    }
+
+    button.btn-secondary:active {
+      background-color: var(--bg-elevated);
     }
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>Lektion 1 單字學習</h1>
-    <div class="progress-bar-container">
-      <div class="progress-bar" id="progressBar"></div>
-    </div>
-    <div class="status-text" id="status">第 1 / 28 個單字</div>
-  </header>
+  <div class="mode-switch">
+    <button class="tab-btn active" id="tabCard">單字卡學習</button>
+    <button class="tab-btn" id="tabQuiz">拼寫與複數測驗</button>
+  </div>
 
-  <div class="card-container" id="cardContainer">
-    <div class="card" id="card">
-      <div class="card-face card-front">
-        <span class="page-tag" id="pageTag">S. 3</span>
-        <button class="btn-audio" id="audioBtn" title="德語發音">🔊</button>
-        <div class="word" id="frontWord">das Bulgarien</div>
-        <div class="hint">點擊翻面看中文（支援左右滑動）</div>
+  <div class="progress-bar-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+  <div class="status-text" id="status">第 1 / 28 個單字</div>
+
+  <!-- 單字卡模式 -->
+  <div class="section-view" id="cardSection">
+    <div class="card-container" id="cardContainer">
+      <div class="card" id="card">
+        <div class="card-face card-front">
+          <span class="page-tag" id="pageTag">S. 3</span>
+          <button class="btn-audio" id="audioBtn" title="德語發音">🔊</button>
+          <div class="word" id="frontWord">das Bulgarien</div>
+          <div class="hint">點擊翻面看中文</div>
+        </div>
+        <div class="card-face card-back">
+          <div class="meaning" id="backMeaning">保加利亞</div>
+          <div class="hint">點擊翻回正面</div>
+        </div>
       </div>
-      <div class="card-face card-back">
-        <div class="meaning" id="backMeaning">保加利亞</div>
-        <div class="hint">點擊翻回正面</div>
-      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn-ctrl" id="prevBtn">上一張</button>
+      <button class="btn-ctrl btn-secondary" id="shuffleBtn">洗牌</button>
+      <button class="btn-ctrl" id="nextBtn">下一張</button>
     </div>
   </div>
 
-  <div class="controls">
-    <button class="btn-ctrl" id="prevBtn">上一張</button>
-    <button class="btn-ctrl btn-shuffle" id="shuffleBtn">隨機洗牌</button>
-    <button class="btn-ctrl" id="nextBtn">下一張</button>
+  <!-- 測驗模式 -->
+  <div class="section-view hidden" id="quizSection">
+    <div class="quiz-card">
+      <span class="page-tag" id="quizPageTag">S. 3</span>
+      <button class="btn-audio" id="quizAudioBtn" style="display:none;" title="德語發音">🔊</button>
+      <div class="quiz-question" id="quizPrompt">保加利亞</div>
+
+      <input type="text" class="input-box" id="quizInput" placeholder="請輸入單字（名詞必須包含冠詞）..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+
+      <div class="char-bar">
+        <button class="char-btn" data-char="ä">ä</button>
+        <button class="char-btn" data-char="ö">ö</button>
+        <button class="char-btn" data-char="ü">ü</button>
+        <button class="char-btn" data-char="ß">ß</button>
+        <button class="char-btn" data-char="Ä">Ä</button>
+        <button class="char-btn" data-char="Ö">Ö</button>
+        <button class="char-btn" data-char="Ü">Ü</button>
+      </div>
+
+      <div class="plural-section" id="pluralSection" style="display: none;">
+        <div class="plural-title">選擇此名詞的複數形式：</div>
+        <div class="plural-options" id="pluralOptions"></div>
+      </div>
+
+      <div class="result-box" id="resultBox"></div>
+    </div>
+
+    <div class="controls">
+      <button class="btn-ctrl" id="submitBtn">送出檢查</button>
+      <button class="btn-ctrl btn-secondary" id="nextQuizBtn" style="display:none;">下一題</button>
+    </div>
   </div>
 
   <script>
     const rawVocabulary = [
-      { page: "S. 3", de: "das Bulgarien (ohne Artikel)", zh: "保加利亞", clean: "Bulgarien" },
-      { page: "S. 3", de: "unterstützen", zh: "支持, 支援", clean: "unterstützen" },
-      { page: "S. 3", de: "aufmerksam", zh: "引起注意的、體貼的/貼心的、專注的", clean: "aufmerksam" },
-      { page: "S. 3", de: "j-n auf etw. (A) aufmerksam machen", zh: "[Wendung] 提醒某人注意某事", clean: "jemanden auf etwas aufmerksam machen" },
-      { page: "S. 3", de: "ernst", zh: "嚴肅的、危急的/嚴重的", clean: "ernst" },
-      { page: "S. 3", de: "frech", zh: "頑皮的/調皮的、放肆的", clean: "frech" },
-      { page: "S. 4", de: "intelligent", zh: "聰明的、有智慧的", clean: "intelligent" },
-      { page: "S. 4", de: "kritisch", zh: "批判的、危急的、[新聞]極重要的", clean: "kritisch" },
-      { page: "S. 4", de: "realistisch", zh: "實際的、現實的", clean: "realistisch" },
-      { page: "S. 4", de: "treu", zh: "忠誠的、忠貞的、忠心的", clean: "treu" },
-      { page: "S. 4", de: "der/die Arme, -n", zh: "可憐之人/可憐蟲、窮人", clean: "der Arme" },
-      { page: "S. 5", de: "ebenso... wie ...", zh: "如同...一般、既...又...", clean: "ebenso wie" },
-      { page: "S. 5", de: "der/die Glückliche, -n", zh: "幸運的人/幸運兒、幸福的人", clean: "der Glückliche" },
-      { page: "S. 5", de: "die Lebensfreude (Sg.)", zh: "生命的喜悅、對生活的熱愛、樂天精神", clean: "die Lebensfreude" },
-      { page: "S. 5", de: "die Nachhilfe (Sg.)", zh: "課後輔導、補習", clean: "die Nachhilfe" },
-      { page: "S. 5", de: "das Vorbild, -er", zh: "榜樣、典範", clean: "das Vorbild" },
-      { page: "S. 5", de: "einige", zh: "有幾個、一些", clean: "einige" },
-      { page: "S. 6", de: "der Konkurrent, -en / die Konkurrentin, -nen", zh: "競爭者、競爭對手", clean: "der Konkurrent" },
-      { page: "S. 6", de: "der/die Ordentliche, -n", zh: "井然有序的人、愛整齊的人、有規矩的人", clean: "der Ordentliche" },
-      { page: "S. 6", de: "der Respekt (Sg.)", zh: "尊重、欽佩、尊敬/敬佩", clean: "der Respekt" },
-      { page: "S. 7", de: "fleißig", zh: "認真的、努力的/用功的", clean: "fleißig" },
-      { page: "S. 7", de: "lustig", zh: "有趣的、搞笑的、好玩的", clean: "lustig" },
-      { page: "S. 7", de: "abschwächen", zh: "弱化/緩和(語義或語調)", clean: "abschwächen" },
-      { page: "S. 7", de: "die Mensa, Mensen/Mensas", zh: "學生餐廳", clean: "die Mensa" },
-      { page: "S. 7", de: "die Vorlesung, -en", zh: "大學講座課、大學演講課", clean: "die Vorlesung" },
-      { page: "S. 9", de: "wirken", zh: "產生作用、顯得/看起來/給人印象", clean: "wirken" },
-      { page: "S. 9", de: "die Charaktereigenschaft, -en", zh: "個性特質/性格特質", clean: "die Charaktereigenschaft" },
-      { page: "S. 9", de: "der Mitbewohner, - / die Mitbewohnerin, -nen", zh: "室友、樓友", clean: "der Mitbewohner" }
+      { page: "S. 3", de: "das Bulgarien (ohne Artikel)", zh: "保加利亞", clean: "Bulgarien", isNoun: false, article: "", singular: "Bulgarien", plural: null },
+      { page: "S. 3", de: "unterstützen", zh: "支持, 支援", clean: "unterstützen", isNoun: false, plural: null },
+      { page: "S. 3", de: "aufmerksam", zh: "引起注意的、體貼的/貼心的、專注的", clean: "aufmerksam", isNoun: false, plural: null },
+      { page: "S. 3", de: "j-n auf etw. (A) aufmerksam machen", zh: "[Wendung] 提醒某人注意某事", clean: "jemanden auf etwas aufmerksam machen", isNoun: false, plural: null },
+      { page: "S. 3", de: "ernst", zh: "嚴肅的、危急的/嚴重的", clean: "ernst", isNoun: false, plural: null },
+      { page: "S. 3", de: "frech", zh: "頑皮的/調皮的、放肆的", clean: "frech", isNoun: false, plural: null },
+      { page: "S. 4", de: "intelligent", zh: "聰明的、有智慧的", clean: "intelligent", isNoun: false, plural: null },
+      { page: "S. 4", de: "kritisch", zh: "批判的、危急的、[新聞]極重要的", clean: "kritisch", isNoun: false, plural: null },
+      { page: "S. 4", de: "realistisch", zh: "實際的、現實的", clean: "realistisch", isNoun: false, plural: null },
+      { page: "S. 4", de: "treu", zh: "忠誠的、忠貞的、忠心的", clean: "treu", isNoun: false, plural: null },
+      { page: "S. 4", de: "der/die Arme, -n", zh: "可憐之人/可憐蟲、窮人", clean: "der Arme", isNoun: true, article: "der/die", singular: "Arme", plural: "-n" },
+      { page: "S. 5", de: "ebenso... wie ...", zh: "如同...一般、既...又...", clean: "ebenso wie", isNoun: false, plural: null },
+      { page: "S. 5", de: "der/die Glückliche, -n", zh: "幸運的人/幸運兒、幸福的人", clean: "der Glückliche", isNoun: true, article: "der/die", singular: "Glückliche", plural: "-n" },
+      { page: "S. 5", de: "die Lebensfreude (Sg.)", zh: "生命的喜悅、對生活的熱愛、樂天精神", clean: "die Lebensfreude", isNoun: true, article: "die", singular: "Lebensfreude", plural: "(Sg.)" },
+      { page: "S. 5", de: "die Nachhilfe (Sg.)", zh: "課後輔導、補習", clean: "die Nachhilfe", isNoun: true, article: "die", singular: "Nachhilfe", plural: "(Sg.)" },
+      { page: "S. 5", de: "das Vorbild, -er", zh: "榜樣、典範", clean: "das Vorbild", isNoun: true, article: "das", singular: "Vorbild", plural: "-er" },
+      { page: "S. 5", de: "einige", zh: "有幾個、一些", clean: "einige", isNoun: false, plural: null },
+      { page: "S. 6", de: "der Konkurrent, -en / die Konkurrentin, -nen", zh: "競爭者、競爭對手 (陽性)", clean: "der Konkurrent", isNoun: true, article: "der", singular: "Konkurrent", plural: "-en" },
+      { page: "S. 6", de: "der/die Ordentliche, -n", zh: "井然有序的人、愛整齊的人、有規矩的人", clean: "der Ordentliche", isNoun: true, article: "der/die", singular: "Ordentliche", plural: "-n" },
+      { page: "S. 6", de: "der Respekt (Sg.)", zh: "尊重、欽佩、尊敬/敬佩", clean: "der Respekt", isNoun: true, article: "der", singular: "Respekt", plural: "(Sg.)" },
+      { page: "S. 7", de: "fleißig", zh: "認真的、努力的/用功的", clean: "fleißig", isNoun: false, plural: null },
+      { page: "S. 7", de: "lustig", zh: "有趣的、搞笑的、好玩的", clean: "lustig", isNoun: false, plural: null },
+      { page: "S. 7", de: "abschwächen", zh: "弱化/緩和(語義或語調)", clean: "abschwächen", isNoun: false, plural: null },
+      { page: "S. 7", de: "die Mensa, Mensen/Mensas", zh: "學生餐廳", clean: "die Mensa", isNoun: true, article: "die", singular: "Mensa", plural: "-en/-s" },
+      { page: "S. 7", de: "die Vorlesung, -en", zh: "大學講座課、大學演講課", clean: "die Vorlesung", isNoun: true, article: "die", singular: "Vorlesung", plural: "-en" },
+      { page: "S. 9", de: "wirken", zh: "產生作用、顯得/看起來/給人印象", clean: "wirken", isNoun: false, plural: null },
+      { page: "S. 9", de: "die Charaktereigenschaft, -en", zh: "個性特質/性格特質", clean: "die Charaktereigenschaft", isNoun: true, article: "die", singular: "Charaktereigenschaft", plural: "-en" },
+      { page: "S. 9", de: "der Mitbewohner, - / die Mitbewohnerin, -nen", zh: "室友、樓友 (陽性)", clean: "der Mitbewohner", isNoun: true, article: "der", singular: "Mitbewohner", plural: "-" }
     ];
+
+    const commonPluralPool = ["-en", "-e", "-er", "-n", "-s", "-", "(Sg.)", "-nen"];
 
     let vocabList = [...rawVocabulary];
     let currentIndex = 0;
+    let selectedPlural = null;
+    let isQuizAnswered = false;
+
+    const tabCard = document.getElementById('tabCard');
+    const tabQuiz = document.getElementById('tabQuiz');
+    const cardSection = document.getElementById('cardSection');
+    const quizSection = document.getElementById('quizSection');
+    const progressBar = document.getElementById('progressBar');
+    const statusText = document.getElementById('status');
 
     const card = document.getElementById('card');
     const cardContainer = document.getElementById('cardContainer');
     const frontWord = document.getElementById('frontWord');
     const backMeaning = document.getElementById('backMeaning');
     const pageTag = document.getElementById('pageTag');
-    const statusText = document.getElementById('status');
-    const progressBar = document.getElementById('progressBar');
+    const audioBtn = document.getElementById('audioBtn');
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
     const shuffleBtn = document.getElementById('shuffleBtn');
-    const audioBtn = document.getElementById('audioBtn');
 
-    function updateCard() {
-      card.classList.remove('flipped');
+    const quizPageTag = document.getElementById('quizPageTag');
+    const quizPrompt = document.getElementById('quizPrompt');
+    const quizInput = document.getElementById('quizInput');
+    const pluralSection = document.getElementById('pluralSection');
+    const pluralOptions = document.getElementById('pluralOptions');
+    const resultBox = document.getElementById('resultBox');
+    const submitBtn = document.getElementById('submitBtn');
+    const nextQuizBtn = document.getElementById('nextQuizBtn');
+    const quizAudioBtn = document.getElementById('quizAudioBtn');
+
+    function updateDisplay() {
       const item = vocabList[currentIndex];
+      statusText.textContent = `第 ${currentIndex + 1} / ${vocabList.length} 個單字`;
+      progressBar.style.width = `${((currentIndex + 1) / vocabList.length) * 100}%`;
+
+      card.classList.remove('flipped');
       setTimeout(() => {
         frontWord.textContent = item.de;
         backMeaning.textContent = item.zh;
         pageTag.textContent = item.page;
-        statusText.textContent = `第 ${currentIndex + 1} / ${vocabList.length} 個單字`;
-        progressBar.style.width = `${((currentIndex + 1) / vocabList.length) * 100}%`;
-      }, 120);
+      }, 100);
+
+      quizPageTag.textContent = item.page;
+      quizPrompt.textContent = item.zh;
+      quizInput.value = '';
+      quizInput.placeholder = item.isNoun ? "請輸入完整德文（需包含冠詞）..." : "請輸入德文單字...";
+      resultBox.className = 'result-box';
+      resultBox.innerHTML = '';
+      submitBtn.style.display = 'block';
+      nextQuizBtn.style.display = 'none';
+      quizAudioBtn.style.display = 'none';
+      isQuizAnswered = false;
+      selectedPlural = null;
+
+      if (item.isNoun && item.plural) {
+        pluralSection.style.display = 'block';
+        pluralOptions.innerHTML = '';
+        
+        const options = [item.plural];
+        const distractors = commonPluralPool.filter(p => p !== item.plural).sort(() => 0.5 - Math.random());
+        while (options.length < 4 && distractors.length > 0) {
+          options.push(distractors.pop());
+        }
+        options.sort(() => 0.5 - Math.random());
+
+        options.forEach(opt => {
+          const btn = document.createElement('button');
+          btn.className = 'plural-btn';
+          btn.textContent = opt === "(Sg.)" ? "僅單數 (Sg.)" : opt;
+          btn.onclick = () => {
+            if (isQuizAnswered) return;
+            document.querySelectorAll('.plural-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedPlural = opt;
+          };
+          pluralOptions.appendChild(btn);
+        });
+      } else {
+        pluralSection.style.display = 'none';
+      }
     }
 
-    // 翻牌
-    cardContainer.addEventListener('click', (e) => {
-      if (e.target.closest('#audioBtn')) return;
-      card.classList.toggle('flipped');
+    function speak(text) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'de-DE';
+      utterance.rate = 0.85;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    tabCard.addEventListener('click', () => {
+      tabCard.classList.add('active');
+      tabQuiz.classList.remove('active');
+      cardSection.classList.remove('hidden');
+      quizSection.classList.add('hidden');
     });
 
-    // 上一張 / 下一張
-    function goPrev() {
+    tabQuiz.addEventListener('click', () => {
+      tabQuiz.classList.add('active');
+      tabCard.classList.remove('active');
+      quizSection.classList.remove('hidden');
+      cardSection.classList.add('hidden');
+      quizInput.focus();
+    });
+
+    cardContainer.addEventListener('click', (e) => {
+      if (!e.target.closest('#audioBtn')) card.classList.toggle('flipped');
+    });
+
+    audioBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      speak(vocabList[currentIndex].clean);
+    });
+
+    quizAudioBtn.addEventListener('click', () => {
+      speak(vocabList[currentIndex].clean);
+    });
+
+    prevBtn.addEventListener('click', () => {
       currentIndex = (currentIndex - 1 + vocabList.length) % vocabList.length;
-      updateCard();
-    }
-    function goNext() {
+      updateDisplay();
+    });
+
+    nextBtn.addEventListener('click', () => {
       currentIndex = (currentIndex + 1) % vocabList.length;
-      updateCard();
-    }
+      updateDisplay();
+    });
 
-    prevBtn.addEventListener('click', goPrev);
-    nextBtn.addEventListener('click', goNext);
-
-    // 隨機排列
     shuffleBtn.addEventListener('click', () => {
       for (let i = vocabList.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [vocabList[i], vocabList[j]] = [vocabList[j], vocabList[i]];
       }
       currentIndex = 0;
-      updateCard();
+      updateDisplay();
     });
 
-    // iOS 發音支援
-    audioBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const utterance = new SpeechSynthesisUtterance(vocabList[currentIndex].clean);
-      utterance.lang = 'de-DE';
-      utterance.rate = 0.85;
-      window.speechSynthesis.speak(utterance);
+    document.querySelectorAll('.char-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        quizInput.value += btn.getAttribute('data-char');
+        quizInput.focus();
+      });
     });
 
-    // iPhone 手勢滑動支援 (Swipe Left / Swipe Right)
+    function checkAnswer() {
+      if (isQuizAnswered) return;
+      const item = vocabList[currentIndex];
+      const userInput = quizInput.value.trim().toLowerCase();
+
+      let isSpellingCorrect = false;
+      let missingArticle = false;
+
+      if (item.isNoun) {
+        const hasArticle = /^(der|die|das)\s+/.test(userInput);
+        const singularOnly = item.singular.toLowerCase();
+
+        if (!hasArticle && userInput === singularOnly) {
+          missingArticle = true;
+          isSpellingCorrect = false;
+        } else {
+          if (item.article === "der/die") {
+            isSpellingCorrect = (userInput === `der ${singularOnly}` || userInput === `die ${singularOnly}`);
+          } else {
+            isSpellingCorrect = (userInput === `${item.article} ${singularOnly}`);
+          }
+        }
+      } else {
+        isSpellingCorrect = (userInput === item.clean.toLowerCase());
+      }
+
+      let isPluralCorrect = true;
+      if (item.isNoun && item.plural) {
+        isPluralCorrect = (selectedPlural === item.plural);
+      }
+
+      if (isSpellingCorrect && isPluralCorrect) {
+        resultBox.className = 'result-box correct';
+        resultBox.innerHTML = `🎉 <strong>完全正確！</strong><br>正確解答：${item.de}`;
+      } else {
+        resultBox.className = 'result-box incorrect';
+        let errorMsg = `❌ <strong>需要加強！</strong><br>`;
+        if (missingArticle) {
+          errorMsg += `⚠️ <strong>冠詞漏寫了！</strong>名詞必須填寫冠詞。<br>`;
+        } else if (!isSpellingCorrect) {
+          errorMsg += `⚠️ <strong>單字拼寫有誤。</strong>你的回答：${quizInput.value || '(未填寫)'}<br>`;
+        }
+        if (item.isNoun && item.plural && !isPluralCorrect) {
+          errorMsg += `⚠️ <strong>複數選錯了！</strong>你選了「${selectedPlural || '未選擇'}」，正確複數為「${item.plural}」。<br>`;
+        }
+        errorMsg += `標準解答：<strong>${item.de}</strong>`;
+        resultBox.innerHTML = errorMsg;
+      }
+
+      speak(item.clean);
+      quizAudioBtn.style.display = 'flex';
+      submitBtn.style.display = 'none';
+      nextQuizBtn.style.display = 'block';
+      isQuizAnswered = true;
+    }
+
+    submitBtn.addEventListener('click', checkAnswer);
+    quizInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        if (!isQuizAnswered) checkAnswer();
+        else nextQuizBtn.click();
+      }
+    });
+
+    nextQuizBtn.addEventListener('click', () => {
+      currentIndex = (currentIndex + 1) % vocabList.length;
+      updateDisplay();
+      quizInput.focus();
+    });
+
+    // iPhone 滑動切換
     let touchStartX = 0;
     let touchEndX = 0;
-
     cardContainer.addEventListener('touchstart', (e) => {
       touchStartX = e.changedTouches[0].screenX;
     }, { passive: true });
-
     cardContainer.addEventListener('touchend', (e) => {
       touchEndX = e.changedTouches[0].screenX;
-      handleSwipe();
+      if (Math.abs(touchEndX - touchStartX) > 50) {
+        if (touchEndX - touchStartX < 0) nextBtn.click();
+        else prevBtn.click();
+      }
     }, { passive: true });
 
-    function handleSwipe() {
-      const diffX = touchEndX - touchStartX;
-      if (Math.abs(diffX) > 50) {
-        if (diffX < 0) {
-          goNext(); // 向左滑：下一張
-        } else {
-          goPrev(); // 向右滑：上一張
-        }
-      }
-    }
-
-    updateCard();
+    updateDisplay();
   </script>
 </body>
 </html>
