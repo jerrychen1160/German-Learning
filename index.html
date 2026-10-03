@@ -6,22 +6,21 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="德文單字">
-  <title>德文單字學習與測驗</title>
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <title>德文學習與動詞測驗</title>
   <style>
-    /* 灰黑現代風色彩系統 */
     :root {
-      --bg-base: #0d1117;          /* 極致深灰底色 */
-      --bg-surface: #161b22;       /* 卡片與元件表面 */
-      --bg-elevated: #21262d;      /* 浮動層/按鈕背景 */
-      --border-color: #30363d;     /* 現代細邊框色 */
-      --text-main: #f0f6fc;        /* 亮白主文字 */
-      --text-sub: #8b949e;         /* 低彩度次要文字 */
-      --accent: #2596be;           /* 現代科技藍 */
-      --accent-hover: #2596be;
-      --correct: #94d92e;          /* 科技翡翠綠 */
+      --bg-base: #0d1117;
+      --bg-surface: #161b22;
+      --bg-elevated: #21262d;
+      --border-color: #30363d;
+      --text-main: #f0f6fc;
+      --text-sub: #8b949e;
+      --accent: #54c3eb;
+      --accent-hover: #489fd8;
+      --correct: #53d965;
       --correct-bg: rgba(46, 160, 67, 0.15);
-      --incorrect: #f85149;        /* 警示亮紅 */
+      --incorrect: #f85149;
       --incorrect-bg: rgba(248, 81, 73, 0.15);
     }
 
@@ -40,7 +39,7 @@
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
-      padding: env(safe-area-inset-top, 24px) 16px env(safe-area-inset-bottom, 24px);
+      padding: env(safe-area-inset-top, 20px) 16px env(safe-area-inset-bottom, 20px);
     }
 
     /* 頂部切換 Tab */
@@ -51,21 +50,23 @@
       border-radius: 12px;
       padding: 4px;
       width: 100%;
-      max-width: 420px;
-      margin-bottom: 14px;
+      max-width: 440px;
+      margin-bottom: 12px;
+      gap: 4px;
     }
 
     .tab-btn {
       flex: 1;
       border: none;
-      padding: 10px 0;
+      padding: 8px 4px;
       border-radius: 8px;
       font-weight: 600;
-      font-size: 0.92rem;
+      font-size: 0.85rem;
       cursor: pointer;
       background: transparent;
       color: var(--text-sub);
       transition: all 0.2s ease;
+      white-space: nowrap;
     }
 
     .tab-btn.active {
@@ -74,10 +75,9 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
     }
 
-    /* 進度條 */
     .progress-bar-container {
       width: 100%;
-      max-width: 420px;
+      max-width: 440px;
       background-color: var(--bg-surface);
       border: 1px solid var(--border-color);
       border-radius: 999px;
@@ -96,13 +96,13 @@
     .status-text {
       font-size: 0.82rem;
       color: var(--text-sub);
-      margin-bottom: 14px;
+      margin-bottom: 10px;
       font-variant-numeric: tabular-nums;
     }
 
     .section-view {
       width: 100%;
-      max-width: 420px;
+      max-width: 440px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -112,7 +112,31 @@
       display: none !important;
     }
 
-    /* 翻牌卡片設計 */
+    /* 正反面切換列 */
+    .card-options-bar {
+      display: flex;
+      justify-content: flex-end;
+      width: 100%;
+      margin-bottom: 8px;
+    }
+
+    .opt-toggle-btn {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      color: var(--text-sub);
+      font-size: 0.76rem;
+      padding: 5px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .opt-toggle-btn:active {
+      background: var(--bg-elevated);
+      color: var(--text-main);
+    }
+
+    /* 單字卡 */
     .card-container {
       perspective: 1000px;
       width: 100%;
@@ -184,20 +208,14 @@
       justify-content: center;
       cursor: pointer;
       color: var(--text-main);
-      transition: transform 0.1s ease;
-    }
-
-    .btn-audio:active {
-      transform: scale(0.92);
     }
 
     .word {
-      font-size: 1.6rem;
+      font-size: 1.55rem;
       font-weight: 700;
       color: var(--text-main);
       line-height: 1.35;
       margin-bottom: 12px;
-      letter-spacing: -0.01em;
     }
 
     .meaning {
@@ -214,7 +232,7 @@
       color: var(--text-sub);
     }
 
-    /* 測驗區塊面板 */
+    /* 測驗面板卡片 */
     .quiz-card {
       width: 100%;
       background: var(--bg-surface);
@@ -234,21 +252,35 @@
       font-weight: 700;
       color: var(--text-main);
       margin-top: 15px;
-      margin-bottom: 18px;
-      min-height: 52px;
+      margin-bottom: 16px;
+      min-height: 48px;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
+    .verb-infinitive {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin-top: 10px;
+      margin-bottom: 4px;
+    }
+
+    .verb-meaning {
+      font-size: 1rem;
+      color: var(--text-sub);
+      margin-bottom: 16px;
+    }
+
     .input-box {
       width: 100%;
-      padding: 12px 16px;
-      font-size: 1.05rem;
+      padding: 11px 14px;
+      font-size: 1rem;
       background: var(--bg-elevated);
       color: var(--text-main);
       border: 1.5px solid var(--border-color);
-      border-radius: 12px;
+      border-radius: 10px;
       outline: none;
       transition: all 0.2s;
     }
@@ -258,11 +290,25 @@
       box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.2);
     }
 
-    /* 德文字元輸入盤 */
+    .verb-form-group {
+      width: 100%;
+      text-align: left;
+      margin-bottom: 10px;
+    }
+
+    .verb-form-group label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-sub);
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    /* 德文字元盤 */
     .char-bar {
       display: flex;
       gap: 6px;
-      margin-top: 10px;
+      margin-top: 8px;
       margin-bottom: 14px;
       width: 100%;
       justify-content: center;
@@ -286,7 +332,7 @@
     /* 複數選單 */
     .plural-section {
       width: 100%;
-      margin-top: 10px;
+      margin-top: 8px;
       text-align: left;
     }
 
@@ -327,9 +373,9 @@
     .result-box {
       width: 100%;
       border-radius: 12px;
-      padding: 14px;
-      margin-top: 16px;
-      font-size: 0.95rem;
+      padding: 12px 14px;
+      margin-top: 14px;
+      font-size: 0.9rem;
       line-height: 1.5;
       text-align: left;
       display: none;
@@ -349,13 +395,13 @@
       border: 1px solid rgba(248, 81, 73, 0.4);
     }
 
-    /* 底部導覽按鈕 */
+    /* 操作按鈕對齊樣式 */
     .controls {
       display: flex;
       gap: 10px;
-      margin-top: 20px;
+      margin-top: 18px;
       width: 100%;
-      max-width: 420px;
+      max-width: 440px;
     }
 
     button.btn-ctrl {
@@ -366,9 +412,11 @@
       font-weight: 600;
       cursor: pointer;
       flex: 1;
+      width: 100%;
       background-color: var(--accent);
       color: #0b0f14;
       transition: all 0.15s;
+      display: block;
     }
 
     button.btn-ctrl:active {
@@ -381,38 +429,54 @@
       color: var(--text-main);
       border: 1px solid var(--border-color);
       flex: 0.8;
+      width: auto;
     }
 
-    button.btn-secondary:active {
-      background-color: var(--bg-elevated);
+    /* 底部 Author 署名 */
+    footer.app-footer {
+      margin-top: 26px;
+      font-size: 0.78rem;
+      color: var(--text-sub);
+      letter-spacing: 0.05em;
+      opacity: 0.85;
+      user-select: none;
     }
   </style>
 </head>
 <body>
 
+  <!-- 頂部切換 Tab -->
   <div class="mode-switch">
-    <button class="tab-btn active" id="tabCard">單字卡學習</button>
-    <button class="tab-btn" id="tabQuiz">拼寫與複數測驗</button>
+    <button class="tab-btn active" id="tabCard">單字卡</button>
+    <button class="tab-btn" id="tabQuiz">單字測驗</button>
+    <button class="tab-btn" id="tabVerb">動詞三態測驗</button>
   </div>
 
   <div class="progress-bar-container">
     <div class="progress-bar" id="progressBar"></div>
   </div>
-  <div class="status-text" id="status">第 1 / 28 個單字</div>
+  <div class="status-text" id="status">進度載入中...</div>
 
-  <!-- 單字卡模式 -->
+  <!-- 1. 單字卡模式 -->
   <div class="section-view" id="cardSection">
+    <div class="card-options-bar">
+      <button class="opt-toggle-btn" id="flipModeToggleBtn">⇄ 正反翻轉：德文正面</button>
+    </div>
+
     <div class="card-container" id="cardContainer">
       <div class="card" id="card">
+        <!-- 正面 -->
         <div class="card-face card-front">
           <span class="page-tag" id="pageTag">S. 3</span>
-          <button class="btn-audio" id="audioBtn" title="德語發音">🔊</button>
+          <button class="btn-audio" id="audioBtnFront" title="德語發音">🔊</button>
           <div class="word" id="frontWord">das Bulgarien</div>
-          <div class="hint">點擊翻面看中文</div>
+          <div class="hint" id="frontHint">點擊翻面看中文</div>
         </div>
+        <!-- 背面 -->
         <div class="card-face card-back">
+          <button class="btn-audio" id="audioBtnBack" style="display:none;" title="德語發音">🔊</button>
           <div class="meaning" id="backMeaning">保加利亞</div>
-          <div class="hint">點擊翻回正面</div>
+          <div class="hint" id="backHint">點擊翻回德文</div>
         </div>
       </div>
     </div>
@@ -424,14 +488,14 @@
     </div>
   </div>
 
-  <!-- 測驗模式 -->
+  <!-- 2. 單字拼寫與複數測驗 -->
   <div class="section-view hidden" id="quizSection">
     <div class="quiz-card">
       <span class="page-tag" id="quizPageTag">S. 3</span>
       <button class="btn-audio" id="quizAudioBtn" style="display:none;" title="德語發音">🔊</button>
       <div class="quiz-question" id="quizPrompt">保加利亞</div>
 
-      <input type="text" class="input-box" id="quizInput" placeholder="請輸入單字（名詞必須包含冠詞）..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <input type="text" class="input-box" id="quizInput" placeholder="請輸入單字（名詞需包含冠詞）..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
 
       <div class="char-bar">
         <button class="char-btn" data-char="ä">ä</button>
@@ -453,9 +517,53 @@
 
     <div class="controls">
       <button class="btn-ctrl" id="submitBtn">送出檢查</button>
-      <button class="btn-ctrl btn-secondary" id="nextQuizBtn" style="display:none;">下一題</button>
+      <button class="btn-ctrl" id="nextQuizBtn" style="display:none;">下一題</button>
     </div>
   </div>
+
+  <!-- 3. 動詞三態變化測驗 -->
+  <div class="section-view hidden" id="verbSection">
+    <div class="quiz-card">
+      <span class="page-tag" id="verbPageTag">動詞測驗</span>
+      <button class="btn-audio" id="verbAudioBtn" style="display:none;" title="德語發音">🔊</button>
+      
+      <div class="verb-infinitive" id="verbInfinitive">sehen</div>
+      <div class="verb-meaning" id="verbMeaning">看, 看法</div>
+
+      <div class="verb-form-group">
+        <label>1. 現在式第三人稱 (Präsens: er/sie/es)</label>
+        <input type="text" class="input-box" id="inputPraesens" placeholder="例如：sieht 或 er sieht" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      </div>
+
+      <div class="verb-form-group">
+        <label>2. 過去式 (Präteritum)</label>
+        <input type="text" class="input-box" id="inputPraeteritum" placeholder="例如：sah" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      </div>
+
+      <div class="verb-form-group">
+        <label>3. 現在完成式 (Perfekt / Partizip II)</label>
+        <input type="text" class="input-box" id="inputPerfekt" placeholder="例如：hat gesehen / ist gegangen" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      </div>
+
+      <div class="char-bar">
+        <button class="char-btn" data-char="ä">ä</button>
+        <button class="char-btn" data-char="ö">ö</button>
+        <button class="char-btn" data-char="ü">ü</button>
+        <button class="char-btn" data-char="ß">ß</button>
+      </div>
+
+      <div class="result-box" id="verbResultBox"></div>
+    </div>
+
+    <div class="controls">
+      <button class="btn-ctrl" id="submitVerbBtn">送出檢查</button>
+      <button class="btn-ctrl" id="nextVerbBtn" style="display:none;">下一題</button>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    Author : Noitaiva1160
+  </footer>
 
   <script>
     const rawVocabulary = [
@@ -489,17 +597,57 @@
       { page: "S. 9", de: "der Mitbewohner, - / die Mitbewohnerin, -nen", zh: "室友、樓友 (陽性)", clean: "der Mitbewohner", isNoun: true, article: "der", singular: "Mitbewohner", plural: "-" }
     ];
 
+    const rawVerbs = [
+      { inf: "sein", praesens: ["ist", "er ist"], praet: "war", perfekt: ["ist gewesen"], zh: "是, 有" },
+      { inf: "haben", praesens: ["hat", "er hat"], praet: "hatte", perfekt: ["hat gehabt"], zh: "擁有" },
+      { inf: "lesen", praesens: ["liest", "er liest"], praet: "las", perfekt: ["hat gelesen"], zh: "閱讀" },
+      { inf: "sehen", praesens: ["sieht", "er sieht"], praet: "sah", perfekt: ["hat gesehen"], zh: "看, 看法" },
+      { inf: "schlafen", praesens: ["schläft", "er schläft"], praet: "schlief", perfekt: ["hat geschlafen"], zh: "睡覺" },
+      { inf: "tragen", praesens: ["trägt", "er trägt"], praet: "trug", perfekt: ["hat getragen"], zh: "搬/背/穿/戴" },
+      { inf: "schreiben", praesens: ["schreibt", "er schreibt"], praet: "schrieb", perfekt: ["hat geschrieben"], zh: "寫" },
+      { inf: "laden", praesens: ["lädt", "er lädt"], praet: "lud", perfekt: ["hat geladen"], zh: "充電, 裝貨, 邀請" },
+      { inf: "essen", praesens: ["isst", "er isst"], praet: "aß", perfekt: ["hat gegessen"], zh: "吃" },
+      { inf: "trinken", praesens: ["trinkt", "er trinkt"], praet: "trank", perfekt: ["hat getrunken"], zh: "喝" },
+      { inf: "rufen", praesens: ["ruft", "er ruft"], praet: "rief", perfekt: ["hat gerufen"], zh: "呼喊, 叫來" },
+      { inf: "stehen", praesens: ["steht", "er steht"], praet: "stand", perfekt: ["hat gestanden"], zh: "站立, 位於" },
+      { inf: "finden", praesens: ["findet", "er findet"], praet: "fand", perfekt: ["hat gefunden"], zh: "找到, 認為" },
+      { inf: "geben", praesens: ["gibt", "er gibt"], praet: "gab", perfekt: ["hat gegeben"], zh: "給" },
+      { inf: "bringen", praesens: ["bringt", "er bringt"], praet: "brachte", perfekt: ["hat gebracht"], zh: "帶來, 送去" },
+      { inf: "bekommen", praesens: ["bekommt", "er bekommt"], praet: "bekam", perfekt: ["hat bekommen"], zh: "得到, 收到" },
+      { inf: "sprechen", praesens: ["spricht", "er spricht"], praet: "sprach", perfekt: ["hat gesprochen"], zh: "說話" },
+      { inf: "nehmen", praesens: ["nimmt", "er nimmt"], praet: "nahm", perfekt: ["hat genommen"], zh: "拿, 點餐, 搭乘" },
+      { inf: "helfen", praesens: ["hilft", "er hilft"], praet: "half", perfekt: ["hat geholfen"], zh: "幫助" },
+      { inf: "beginnen", praesens: ["beginnt", "er beginnt"], praet: "begann", perfekt: ["hat begonnen"], zh: "開始" },
+      { inf: "können", praesens: ["kann", "er kann"], praet: "konnte", perfekt: ["hat gekonnt"], zh: "能夠, 會" },
+      { inf: "wollen", praesens: ["will", "er will"], praet: "wollte", perfekt: ["hat gewollt"], zh: "想要" },
+      { inf: "dürfen", praesens: ["darf", "er darf"], praet: "durfte", perfekt: ["hat gedurft"], zh: "被允許, 可以" },
+      { inf: "gehen", praesens: ["geht", "er geht"], praet: "ging", perfekt: ["ist gegangen"], zh: "去, 步行, 運作" },
+      { inf: "bleiben", praesens: ["bleibt", "er bleibt"], praet: "blieb", perfekt: ["ist geblieben"], zh: "停留, 保持" },
+      { inf: "fahren", praesens: ["fährt", "er fährt"], praet: "fuhr", perfekt: ["ist gefahren"], zh: "搭乘, 開車, 騎車" },
+      { inf: "gefallen", praesens: ["gefällt", "es gefällt", "er gefällt"], praet: "gefiel", perfekt: ["hat gefallen"], zh: "使喜愛, 中意" },
+      { inf: "lassen", praesens: ["lässt", "er lässt"], praet: "ließ", perfekt: ["hat gelassen"], zh: "讓, 留下, 放置" },
+      { inf: "denken", praesens: ["denkt", "er denkt"], praet: "dachte", perfekt: ["hat gedacht"], zh: "思考, 認為" },
+      { inf: "unterstützen", praesens: ["unterstützt", "er unterstützt"], praet: "unterstützte", perfekt: ["hat unterstützt"], zh: "支持, 支援" }
+    ];
+
     const commonPluralPool = ["-en", "-e", "-er", "-n", "-s", "-", "(Sg.)", "-nen"];
 
     let vocabList = [...rawVocabulary];
+    let verbList = [...rawVerbs];
     let currentIndex = 0;
+    let currentVerbIndex = 0;
+    let currentActiveInput = null;
     let selectedPlural = null;
     let isQuizAnswered = false;
+    let isVerbAnswered = false;
+    let isChineseFront = false;
 
     const tabCard = document.getElementById('tabCard');
     const tabQuiz = document.getElementById('tabQuiz');
+    const tabVerb = document.getElementById('tabVerb');
     const cardSection = document.getElementById('cardSection');
     const quizSection = document.getElementById('quizSection');
+    const verbSection = document.getElementById('verbSection');
     const progressBar = document.getElementById('progressBar');
     const statusText = document.getElementById('status');
 
@@ -507,11 +655,15 @@
     const cardContainer = document.getElementById('cardContainer');
     const frontWord = document.getElementById('frontWord');
     const backMeaning = document.getElementById('backMeaning');
+    const frontHint = document.getElementById('frontHint');
+    const backHint = document.getElementById('backHint');
     const pageTag = document.getElementById('pageTag');
-    const audioBtn = document.getElementById('audioBtn');
+    const audioBtnFront = document.getElementById('audioBtnFront');
+    const audioBtnBack = document.getElementById('audioBtnBack');
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
     const shuffleBtn = document.getElementById('shuffleBtn');
+    const flipModeToggleBtn = document.getElementById('flipModeToggleBtn');
 
     const quizPageTag = document.getElementById('quizPageTag');
     const quizPrompt = document.getElementById('quizPrompt');
@@ -523,6 +675,70 @@
     const nextQuizBtn = document.getElementById('nextQuizBtn');
     const quizAudioBtn = document.getElementById('quizAudioBtn');
 
+    const verbPageTag = document.getElementById('verbPageTag');
+    const verbInfinitive = document.getElementById('verbInfinitive');
+    const verbMeaning = document.getElementById('verbMeaning');
+    const inputPraesens = document.getElementById('inputPraesens');
+    const inputPraeteritum = document.getElementById('inputPraeteritum');
+    const inputPerfekt = document.getElementById('inputPerfekt');
+    const verbResultBox = document.getElementById('verbResultBox');
+    const submitVerbBtn = document.getElementById('submitVerbBtn');
+    const nextVerbBtn = document.getElementById('nextVerbBtn');
+    const verbAudioBtn = document.getElementById('verbAudioBtn');
+
+    let germanVoice = null;
+    function loadGermanVoice() {
+      if (!('speechSynthesis' in window)) return;
+      const voices = window.speechSynthesis.getVoices();
+      if (voices.length > 0) {
+        germanVoice = voices.find(v => v.lang.startsWith('de') && v.name.toLowerCase().includes('anna'))
+                   || voices.find(v => v.lang.startsWith('de') || v.lang.includes('DE'))
+                   || null;
+      }
+    }
+    if ('speechSynthesis' in window) {
+      loadGermanVoice();
+      window.speechSynthesis.onvoiceschanged = loadGermanVoice;
+    }
+    function speak(text) {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      if (!germanVoice) loadGermanVoice();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'de-DE';
+      utterance.rate = 0.85;
+      if (germanVoice) utterance.voice = germanVoice;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function switchMode(mode) {
+      tabCard.classList.toggle('active', mode === 'card');
+      tabQuiz.classList.toggle('active', mode === 'quiz');
+      tabVerb.classList.toggle('active', mode === 'verb');
+
+      cardSection.classList.toggle('hidden', mode !== 'card');
+      quizSection.classList.toggle('hidden', mode !== 'quiz');
+      verbSection.classList.toggle('hidden', mode !== 'verb');
+
+      if (mode === 'verb') {
+        updateVerbDisplay();
+        inputPraesens.focus();
+      } else {
+        updateDisplay();
+        if (mode === 'quiz') quizInput.focus();
+      }
+    }
+
+    tabCard.addEventListener('click', () => switchMode('card'));
+    tabQuiz.addEventListener('click', () => switchMode('quiz'));
+    tabVerb.addEventListener('click', () => switchMode('verb'));
+
+    flipModeToggleBtn.addEventListener('click', () => {
+      isChineseFront = !isChineseFront;
+      flipModeToggleBtn.textContent = isChineseFront ? "⇄ 正反翻轉：中文正面" : "⇄ 正反翻轉：德文正面";
+      updateDisplay();
+    });
+
     function updateDisplay() {
       const item = vocabList[currentIndex];
       statusText.textContent = `第 ${currentIndex + 1} / ${vocabList.length} 個單字`;
@@ -530,8 +746,23 @@
 
       card.classList.remove('flipped');
       setTimeout(() => {
-        frontWord.textContent = item.de;
-        backMeaning.textContent = item.zh;
+        if (!isChineseFront) {
+          // 德文在正面：喇叭放在正面，背面不放
+          frontWord.textContent = item.de;
+          backMeaning.textContent = item.zh;
+          frontHint.textContent = "點擊翻面看中文";
+          backHint.textContent = "點擊翻回德文";
+          audioBtnFront.style.display = "flex";
+          audioBtnBack.style.display = "none";
+        } else {
+          // 中文在正面：正面不放喇叭，背面（德文）顯示喇叭
+          frontWord.textContent = item.zh;
+          backMeaning.textContent = item.de;
+          frontHint.textContent = "點擊翻面看德文";
+          backHint.textContent = "點擊翻回中文";
+          audioBtnFront.style.display = "none";
+          audioBtnBack.style.display = "flex";
+        }
         pageTag.textContent = item.page;
       }, 100);
 
@@ -550,12 +781,9 @@
       if (item.isNoun && item.plural) {
         pluralSection.style.display = 'block';
         pluralOptions.innerHTML = '';
-        
         const options = [item.plural];
         const distractors = commonPluralPool.filter(p => p !== item.plural).sort(() => 0.5 - Math.random());
-        while (options.length < 4 && distractors.length > 0) {
-          options.push(distractors.pop());
-        }
+        while (options.length < 4 && distractors.length > 0) options.push(distractors.pop());
         options.sort(() => 0.5 - Math.random());
 
         options.forEach(opt => {
@@ -575,86 +803,67 @@
       }
     }
 
-    let germanVoice = null;
+    function updateVerbDisplay() {
+      const verb = verbList[currentVerbIndex];
+      statusText.textContent = `動詞測驗：第 ${currentVerbIndex + 1} / ${verbList.length} 題`;
+      progressBar.style.width = `${((currentVerbIndex + 1) / verbList.length) * 100}%`;
 
-  // 主動載入並鎖定德語語音（優先找 Anna）
-  function loadGermanVoice() {
-    if (!('speechSynthesis' in window)) return;
-    const voices = window.speechSynthesis.getVoices();
-    if (voices.length > 0) {
-      // 優先找名字叫 Anna 且為德語的聲音，找不到再退回其他德語聲音
-      germanVoice = voices.find(v => v.lang.startsWith('de') && v.name.toLowerCase().includes('anna'))
-                || voices.find(v => v.lang.startsWith('de') || v.lang.includes('DE'))
-                || null;
-    }
-  }
-
-  // 監聽語音庫非同步載入事件
-  if ('speechSynthesis' in window) {
-    loadGermanVoice();
-    window.speechSynthesis.onvoiceschanged = loadGermanVoice;
-  }
-
-  function speak(text) {
-    if (!('speechSynthesis' in window)) return;
-
-    // 避免前一次朗讀卡住
-    window.speechSynthesis.cancel();
-
-    // 若尚未抓到語音物件，再次嘗試抓取
-    if (!germanVoice) {
-      loadGermanVoice();
+      verbInfinitive.textContent = verb.inf;
+      verbMeaning.textContent = verb.zh;
+      inputPraesens.value = '';
+      inputPraeteritum.value = '';
+      inputPerfekt.value = '';
+      verbResultBox.className = 'result-box';
+      verbResultBox.innerHTML = '';
+      submitVerbBtn.style.display = 'block';
+      nextVerbBtn.style.display = 'none';
+      verbAudioBtn.style.display = 'none';
+      isVerbAnswered = false;
     }
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'de-DE';
-    utterance.rate = 0.85;
-
-    if (germanVoice) {
-      utterance.voice = germanVoice; // 明確指定 Anna
-    }
-
-    window.speechSynthesis.speak(utterance);
-  }
-
-    tabCard.addEventListener('click', () => {
-      tabCard.classList.add('active');
-      tabQuiz.classList.remove('active');
-      cardSection.classList.remove('hidden');
-      quizSection.classList.add('hidden');
+    [quizInput, inputPraesens, inputPraeteritum, inputPerfekt].forEach(input => {
+      input.addEventListener('focus', () => { currentActiveInput = input; });
     });
 
-    tabQuiz.addEventListener('click', () => {
-      tabQuiz.classList.add('active');
-      tabCard.classList.remove('active');
-      quizSection.classList.remove('hidden');
-      cardSection.classList.add('hidden');
-      quizInput.focus();
+    document.querySelectorAll('.char-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const char = btn.getAttribute('data-char');
+        const target = currentActiveInput || (verbSection.classList.contains('hidden') ? quizInput : inputPraesens);
+        target.value += char;
+        target.focus();
+      });
     });
 
+    // 翻牌純翻轉，不觸發自動朗讀
     cardContainer.addEventListener('click', (e) => {
-      if (!e.target.closest('#audioBtn')) card.classList.toggle('flipped');
+      if (!e.target.closest('.btn-audio')) {
+        card.classList.toggle('flipped');
+      }
     });
 
-    audioBtn.addEventListener('click', (e) => {
+    // 正面與背面喇叭統一呼叫德語發音
+    function triggerAudio(e) {
       e.stopPropagation();
       speak(vocabList[currentIndex].clean);
-    });
+    }
+    audioBtnFront.addEventListener('click', triggerAudio);
+    audioBtnBack.addEventListener('click', triggerAudio);
 
-    quizAudioBtn.addEventListener('click', () => {
-      speak(vocabList[currentIndex].clean);
+    quizAudioBtn.addEventListener('click', () => speak(vocabList[currentIndex].clean));
+    verbAudioBtn.addEventListener('click', () => {
+      const v = verbList[currentVerbIndex];
+      speak(`${v.inf}. ${v.praesens[0]}. ${v.praet}. ${v.perfekt[0]}`);
     });
 
     prevBtn.addEventListener('click', () => {
       currentIndex = (currentIndex - 1 + vocabList.length) % vocabList.length;
       updateDisplay();
     });
-
     nextBtn.addEventListener('click', () => {
       currentIndex = (currentIndex + 1) % vocabList.length;
       updateDisplay();
     });
-
     shuffleBtn.addEventListener('click', () => {
       for (let i = vocabList.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -664,25 +873,16 @@
       updateDisplay();
     });
 
-    document.querySelectorAll('.char-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        quizInput.value += btn.getAttribute('data-char');
-        quizInput.focus();
-      });
-    });
-
-    function checkAnswer() {
+    submitBtn.addEventListener('click', () => {
       if (isQuizAnswered) return;
       const item = vocabList[currentIndex];
       const userInput = quizInput.value.trim().toLowerCase();
-
       let isSpellingCorrect = false;
       let missingArticle = false;
 
       if (item.isNoun) {
         const hasArticle = /^(der|die|das)\s+/.test(userInput);
         const singularOnly = item.singular.toLowerCase();
-
         if (!hasArticle && userInput === singularOnly) {
           missingArticle = true;
           isSpellingCorrect = false;
@@ -698,9 +898,7 @@
       }
 
       let isPluralCorrect = true;
-      if (item.isNoun && item.plural) {
-        isPluralCorrect = (selectedPlural === item.plural);
-      }
+      if (item.isNoun && item.plural) isPluralCorrect = (selectedPlural === item.plural);
 
       if (isSpellingCorrect && isPluralCorrect) {
         resultBox.className = 'result-box correct';
@@ -708,14 +906,9 @@
       } else {
         resultBox.className = 'result-box incorrect';
         let errorMsg = `❌ <strong>需要加強！</strong><br>`;
-        if (missingArticle) {
-          errorMsg += `⚠️ <strong>冠詞漏寫了！</strong>名詞必須填寫冠詞。<br>`;
-        } else if (!isSpellingCorrect) {
-          errorMsg += `⚠️ <strong>單字拼寫有誤。</strong>你的回答：${quizInput.value || '(未填寫)'}<br>`;
-        }
-        if (item.isNoun && item.plural && !isPluralCorrect) {
-          errorMsg += `⚠️ <strong>複數選錯了！</strong>你選了「${selectedPlural || '未選擇'}」，正確複數為「${item.plural}」。<br>`;
-        }
+        if (missingArticle) errorMsg += `⚠️ <strong>冠詞漏寫了！</strong>名詞必須填寫冠詞。<br>`;
+        else if (!isSpellingCorrect) errorMsg += `⚠️ <strong>單字拼寫有誤。</strong>你的回答：${quizInput.value || '(未填寫)'}<br>`;
+        if (item.isNoun && item.plural && !isPluralCorrect) errorMsg += `⚠️ <strong>複數選錯了！</strong>你選了「${selectedPlural || '未選擇'}」，正確複數為「${item.plural}」。<br>`;
         errorMsg += `標準解答：<strong>${item.de}</strong>`;
         resultBox.innerHTML = errorMsg;
       }
@@ -725,14 +918,6 @@
       submitBtn.style.display = 'none';
       nextQuizBtn.style.display = 'block';
       isQuizAnswered = true;
-    }
-
-    submitBtn.addEventListener('click', checkAnswer);
-    quizInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        if (!isQuizAnswered) checkAnswer();
-        else nextQuizBtn.click();
-      }
     });
 
     nextQuizBtn.addEventListener('click', () => {
@@ -741,20 +926,62 @@
       quizInput.focus();
     });
 
-    // iPhone 滑動切換
-    let touchStartX = 0;
-    let touchEndX = 0;
-    cardContainer.addEventListener('touchstart', (e) => {
-      touchStartX = e.changedTouches[0].screenX;
-    }, { passive: true });
-    cardContainer.addEventListener('touchend', (e) => {
-      touchEndX = e.changedTouches[0].screenX;
-      if (Math.abs(touchEndX - touchStartX) > 50) {
-        if (touchEndX - touchStartX < 0) nextBtn.click();
-        else prevBtn.click();
-      }
-    }, { passive: true });
+    function checkVerbAnswer() {
+      if (isVerbAnswered) return;
+      const v = verbList[currentVerbIndex];
+      const p1 = inputPraesens.value.trim().toLowerCase();
+      const p2 = inputPraeteritum.value.trim().toLowerCase();
+      const p3 = inputPerfekt.value.trim().toLowerCase();
 
+      const okPraesens = v.praesens.some(ans => p1 === ans.toLowerCase() || p1 === ans.replace(/^er\s+/, '').toLowerCase());
+      const okPraeteritum = (p2 === v.praet.toLowerCase());
+      const okPerfekt = v.perfekt.some(ans => {
+        const full = ans.toLowerCase();
+        const partizipOnly = full.replace(/^(hat|ist)\s+/, '');
+        return p3 === full || p3 === partizipOnly;
+      });
+
+      const allCorrect = okPraesens && okPraeteritum && okPerfekt;
+
+      if (allCorrect) {
+        verbResultBox.className = 'result-box correct';
+        verbResultBox.innerHTML = `🎉 <strong>三態變化全部正確！</strong><br>
+        • 現在式：<strong>${v.praesens[0]}</strong><br>
+        • 過去式：<strong>${v.praet}</strong><br>
+        • 完成式：<strong>${v.perfekt[0]}</strong>`;
+      } else {
+        verbResultBox.className = 'result-box incorrect';
+        let detail = `❌ <strong>有些型態需要修正：</strong><br>`;
+        detail += `• 現在式：${okPraesens ? '✅' : '❌'} 正確為 <strong>${v.praesens[0]}</strong><br>`;
+        detail += `• 過去式：${okPraeteritum ? '✅' : '❌'} 正確為 <strong>${v.praet}</strong><br>`;
+        detail += `• 完成式：${okPerfekt ? '✅' : '❌'} 正確為 <strong>${v.perfekt[0]}</strong>`;
+        verbResultBox.innerHTML = detail;
+      }
+
+      speak(`${v.inf}, ${v.praesens[0]}, ${v.praet}, ${v.perfekt[0]}`);
+      verbAudioBtn.style.display = 'flex';
+      submitVerbBtn.style.display = 'none';
+      nextVerbBtn.style.display = 'block';
+      isVerbAnswered = true;
+    }
+
+    submitVerbBtn.addEventListener('click', checkVerbAnswer);
+    [inputPraesens, inputPraeteritum, inputPerfekt].forEach(inp => {
+      inp.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          if (!isVerbAnswered) checkVerbAnswer();
+          else nextVerbBtn.click();
+        }
+      });
+    });
+
+    nextVerbBtn.addEventListener('click', () => {
+      currentVerbIndex = (currentVerbIndex + 1) % verbList.length;
+      updateVerbDisplay();
+      inputPraesens.focus();
+    });
+
+    verbList.sort(() => 0.5 - Math.random());
     updateDisplay();
   </script>
 </body>
