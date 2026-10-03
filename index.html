@@ -575,12 +575,47 @@
       }
     }
 
-    function speak(text) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'de-DE';
-      utterance.rate = 0.85;
-      window.speechSynthesis.speak(utterance);
+    let germanVoice = null;
+
+  // 主動載入並鎖定德語語音（優先找 Anna）
+  function loadGermanVoice() {
+    if (!('speechSynthesis' in window)) return;
+    const voices = window.speechSynthesis.getVoices();
+    if (voices.length > 0) {
+      // 優先找名字叫 Anna 且為德語的聲音，找不到再退回其他德語聲音
+      germanVoice = voices.find(v => v.lang.startsWith('de') && v.name.toLowerCase().includes('anna'))
+                || voices.find(v => v.lang.startsWith('de') || v.lang.includes('DE'))
+                || null;
     }
+  }
+
+  // 監聽語音庫非同步載入事件
+  if ('speechSynthesis' in window) {
+    loadGermanVoice();
+    window.speechSynthesis.onvoiceschanged = loadGermanVoice;
+  }
+
+  function speak(text) {
+    if (!('speechSynthesis' in window)) return;
+
+    // 避免前一次朗讀卡住
+    window.speechSynthesis.cancel();
+
+    // 若尚未抓到語音物件，再次嘗試抓取
+    if (!germanVoice) {
+      loadGermanVoice();
+    }
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'de-DE';
+    utterance.rate = 0.85;
+
+    if (germanVoice) {
+      utterance.voice = germanVoice; // 明確指定 Anna
+    }
+
+    window.speechSynthesis.speak(utterance);
+  }
 
     tabCard.addEventListener('click', () => {
       tabCard.classList.add('active');
