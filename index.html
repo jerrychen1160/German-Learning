@@ -86,6 +86,39 @@
       font-size: 0.85rem;
     }
 
+    /* 動詞範圍切換列 */
+    .sub-filter-bar {
+      display: flex;
+      width: 100%;
+      max-width: 440px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 3px;
+      margin-bottom: 10px;
+      gap: 4px;
+    }
+
+    .filter-btn {
+      flex: 1;
+      border: none;
+      background: transparent;
+      color: var(--text-sub);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 7px 4px;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .filter-btn.active {
+      background: var(--bg-elevated);
+      color: var(--text-main);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+
     .progress-bar-container {
       width: 100%;
       max-width: 440px;
@@ -465,6 +498,13 @@
     </div>
   </div>
 
+  <!-- 動詞模式專屬：難度/範圍選單 -->
+  <div class="sub-filter-bar hidden" id="verbFilterBar">
+    <button class="filter-btn active" data-level="all">全部動詞 (A1–B1)</button>
+    <button class="filter-btn" data-level="A1-2">基礎 (A1–A2: 1–10頁)</button>
+    <button class="filter-btn" data-level="B1">進階 (B1: 11–13頁)</button>
+  </div>
+
   <div class="progress-bar-container">
     <div class="progress-bar" id="progressBar"></div>
   </div>
@@ -714,40 +754,98 @@
       { page: "KB L1", de: "verdienen", zh: "賺取 (金錢)", clean: "verdienen", isNoun: false, plural: null }
     ];
 
-    const rawVerbs = [
-      { inf: "sein", praesens: ["ist", "er ist"], praet: "war", perfekt: ["ist gewesen"], zh: "是, 有" },
-      { inf: "haben", praesens: ["hat", "er hat"], praet: "hatte", perfekt: ["hat gehabt"], zh: "擁有" },
-      { inf: "lesen", praesens: ["liest", "er liest"], praet: "las", perfekt: ["hat gelesen"], zh: "閱讀" },
-      { inf: "sehen", praesens: ["sieht", "er sieht"], praet: "sah", perfekt: ["hat gesehen"], zh: "看, 看法" },
-      { inf: "schlafen", praesens: ["schläft", "er schläft"], praet: "schlief", perfekt: ["hat geschlafen"], zh: "睡覺" },
-      { inf: "tragen", praesens: ["trägt", "er trägt"], praet: "trug", perfekt: ["hat getragen"], zh: "搬/背/穿/戴" },
-      { inf: "schreiben", praesens: ["schreibt", "er schreibt"], praet: "schrieb", perfekt: ["hat geschrieben"], zh: "寫" },
-      { inf: "laden", praesens: ["lädt", "er lädt"], praet: "lud", perfekt: ["hat geladen"], zh: "充電, 裝貨, 邀請" },
-      { inf: "essen", praesens: ["isst", "er isst"], praet: "aß", perfekt: ["hat gegessen"], zh: "吃" },
-      { inf: "trinken", praesens: ["trinkt", "er trinkt"], praet: "trank", perfekt: ["hat getrunken"], zh: "喝" },
-      { inf: "rufen", praesens: ["ruft", "er ruft"], praet: "rief", perfekt: ["hat gerufen"], zh: "呼喊, 叫來" },
-      { inf: "stehen", praesens: ["steht", "er steht"], praet: "stand", perfekt: ["hat gestanden"], zh: "站立, 位於" },
-      { inf: "finden", praesens: ["findet", "er findet"], praet: "fand", perfekt: ["hat gefunden"], zh: "找到, 認為" },
-      { inf: "geben", praesens: ["gibt", "er gibt"], praet: "gab", perfekt: ["hat gegeben"], zh: "給" },
-      { inf: "bringen", praesens: ["bringt", "er bringt"], praet: "brachte", perfekt: ["hat gebracht"], zh: "帶來, 送去" },
-      { inf: "bekommen", praesens: ["bekommt", "er bekommt"], praet: "bekam", perfekt: ["hat bekommen"], zh: "得到, 收到" },
-      { inf: "sprechen", praesens: ["spricht", "er spricht"], praet: "sprach", perfekt: ["hat gesprochen"], zh: "說話" },
-      { inf: "nehmen", praesens: ["nimmt", "er nimmt"], praet: "nahm", perfekt: ["hat genommen"], zh: "拿, 點餐, 搭乘" },
-      { inf: "helfen", praesens: ["hilft", "er hilft"], praet: "half", perfekt: ["hat geholfen"], zh: "幫助" },
-      { inf: "beginnen", praesens: ["beginnt", "er beginnt"], praet: "begann", perfekt: ["hat begonnen"], zh: "開始" },
-      { inf: "können", praesens: ["kann", "er kann"], praet: "konnte", perfekt: ["hat gekonnt"], zh: "能夠, 會" },
-      { inf: "wollen", praesens: ["will", "er will"], praet: "wollte", perfekt: ["hat gewollt"], zh: "想要" },
-      { inf: "dürfen", praesens: ["darf", "er darf"], praet: "durfte", perfekt: ["hat gedurft"], zh: "被允許, 可以" },
-      { inf: "gehen", praesens: ["geht", "er geht"], praet: "ging", perfekt: ["ist gegangen"], zh: "去, 步行, 運作" },
-      { inf: "bleiben", praesens: ["bleibt", "er bleibt"], praet: "blieb", perfekt: ["ist geblieben"], zh: "停留, 保持" },
-      { inf: "fahren", praesens: ["fährt", "er fährt"], praet: "fuhr", perfekt: ["ist gefahren"], zh: "搭乘, 開車, 騎車" },
-      { inf: "gefallen", praesens: ["gefällt", "es gefällt", "er gefällt"], praet: "gefiel", perfekt: ["hat gefallen"], zh: "使喜愛, 中意" },
-      { inf: "lassen", praesens: ["lässt", "er lässt"], praet: "ließ", perfekt: ["hat gelassen"], zh: "讓, 留下, 放置" },
-      { inf: "denken", praesens: ["denkt", "er denkt"], praet: "dachte", perfekt: ["hat gedacht"], zh: "思考, 認為" },
-      { inf: "unterstützen", praesens: ["unterstützt", "er unterstützt"], praet: "unterstützte", perfekt: ["hat unterstützt"], zh: "支持, 支援" }
+    // 動詞資料庫：去除重複字幹、排除可分離動詞，並標記 level: "A1-2" 或 "B1"
+    const allVerbsMaster = [
+      // === A1-A2 基礎動詞 (講義第 1 ~ 10 頁) ===
+      { inf: "sein", praesens: ["ist", "er ist"], praet: "war", perfekt: ["ist gewesen"], zh: "是, 有", level: "A1-2" },
+      { inf: "haben", praesens: ["hat", "er hat"], praet: "hatte", perfekt: ["hat gehabt"], zh: "擁有", level: "A1-2" },
+      { inf: "lesen", praesens: ["liest", "er liest"], praet: "las", perfekt: ["hat gelesen"], zh: "閱讀", level: "A1-2" },
+      { inf: "sehen", praesens: ["sieht", "er sieht"], praet: "sah", perfekt: ["hat gesehen"], zh: "看, 看法", level: "A1-2" },
+      { inf: "schlafen", praesens: ["schläft", "er schläft"], praet: "schlief", perfekt: ["hat geschlafen"], zh: "睡覺", level: "A1-2" },
+      { inf: "tragen", praesens: ["trägt", "er trägt"], praet: "trug", perfekt: ["hat getragen"], zh: "搬/背/穿/戴", level: "A1-2" },
+      { inf: "schreiben", praesens: ["schreibt", "er schreibt"], praet: "schrieb", perfekt: ["hat geschrieben"], zh: "寫", level: "A1-2" },
+      { inf: "laden", praesens: ["lädt", "er lädt"], praet: "lud", perfekt: ["hat geladen"], zh: "充電, 裝貨, 邀請", level: "A1-2" },
+      { inf: "essen", praesens: ["isst", "er isst"], praet: "aß", perfekt: ["hat gegessen"], zh: "吃", level: "A1-2" },
+      { inf: "trinken", praesens: ["trinkt", "er trinkt"], praet: "trank", perfekt: ["hat getrunken"], zh: "喝", level: "A1-2" },
+      { inf: "rufen", praesens: ["ruft", "er ruft"], praet: "rief", perfekt: ["hat gerufen"], zh: "呼喊, 叫來", level: "A1-2" },
+      { inf: "stehen", praesens: ["steht", "er steht"], praet: "stand", perfekt: ["hat gestanden"], zh: "站立, 位於", level: "A1-2" },
+      { inf: "finden", praesens: ["findet", "er findet"], praet: "fand", perfekt: ["hat gefunden"], zh: "找到, 認為", level: "A1-2" },
+      { inf: "geben", praesens: ["gibt", "er gibt"], praet: "gab", perfekt: ["hat gegeben"], zh: "給", level: "A1-2" },
+      { inf: "bringen", praesens: ["bringt", "er bringt"], praet: "brachte", perfekt: ["hat gebracht"], zh: "送來, 送去", level: "A1-2" },
+      { inf: "bekommen", praesens: ["bekommt", "er bekommt"], praet: "bekam", perfekt: ["hat bekommen"], zh: "得到, 收到", level: "A1-2" },
+      { inf: "sprechen", praesens: ["spricht", "er spricht"], praet: "sprach", perfekt: ["hat gesprochen"], zh: "說, 說話", level: "A1-2" },
+      { inf: "nehmen", praesens: ["nimmt", "er nimmt"], praet: "nahm", perfekt: ["hat genommen"], zh: "拿, 點餐, 搭乘", level: "A1-2" },
+      { inf: "fangen", praesens: ["fängt", "er fängt"], praet: "fing", perfekt: ["hat gefangen"], zh: "捕捉, 逮住", level: "A1-2" },
+      { inf: "helfen", praesens: ["hilft", "er hilft"], praet: "half", perfekt: ["hat geholfen"], zh: "幫助", level: "A1-2" },
+      { inf: "beginnen", praesens: ["beginnt", "er beginnt"], praet: "begann", perfekt: ["hat begonnen"], zh: "開始", level: "A1-2" },
+      { inf: "können", praesens: ["kann", "er kann"], praet: "konnte", perfekt: ["hat gekonnt"], zh: "能夠, 會", level: "A1-2" },
+      { inf: "wollen", praesens: ["will", "er will"], praet: "wollte", perfekt: ["hat gewollt"], zh: "想要", level: "A1-2" },
+      { inf: "waschen", praesens: ["wäscht", "er wäscht"], praet: "wusch", perfekt: ["hat gewaschen"], zh: "洗", level: "A1-2" },
+      { inf: "backen", praesens: ["backt", "er backt", "bäckt", "er bäckt"], praet: "backte", perfekt: ["hat gebacken"], zh: "烘培", level: "A1-2" },
+      { inf: "schließen", praesens: ["schließt", "er schließt"], praet: "schloss", perfekt: ["hat geschlossen"], zh: "關上, 閉合", level: "A1-2" },
+      { inf: "schneiden", praesens: ["schneidet", "er schneidet"], praet: "schnitt", perfekt: ["hat geschnitten"], zh: "切, 剪", level: "A1-2" },
+      { inf: "kommen", praesens: ["kommt", "er kommt"], praet: "kam", perfekt: ["ist gekommen"], zh: "來, 前往", level: "A1-2" },
+      { inf: "gehen", praesens: ["geht", "er geht"], praet: "ging", perfekt: ["ist gegangen"], zh: "去, 步行, 運作", level: "A1-2" },
+      { inf: "ziehen", praesens: ["zieht", "er zieht"], praet: "zog", perfekt: ["ist gezogen", "hat gezogen"], zh: "拉, 搬家, 移居", level: "A1-2" },
+      { inf: "bleiben", praesens: ["bleibt", "er bleibt"], praet: "blieb", perfekt: ["ist geblieben"], zh: "停留, 保持", level: "A1-2" },
+      { inf: "fallen", praesens: ["fällt", "er fällt"], praet: "fiel", perfekt: ["ist gefallen"], zh: "掉落, 跌倒", level: "A1-2" },
+      { inf: "schwimmen", praesens: ["schwimmt", "er schwimmt"], praet: "schwamm", perfekt: ["ist geschwommen"], zh: "游泳", level: "A1-2" },
+      { inf: "laufen", praesens: ["läuft", "er läuft"], praet: "lief", perfekt: ["ist gelaufen"], zh: "跑, 步行", level: "A1-2" },
+      { inf: "fahren", praesens: ["fährt", "er fährt"], praet: "fuhr", perfekt: ["ist gefahren"], zh: "搭乘, 開車, 騎車", level: "A1-2" },
+      { inf: "vergessen", praesens: ["vergisst", "er vergisst"], praet: "vergaß", perfekt: ["hat vergessen"], zh: "忘記", level: "A1-2" },
+      { inf: "sterben", praesens: ["stirbt", "er stirbt"], praet: "starb", perfekt: ["ist gestorben"], zh: "死亡", level: "A1-2" },
+      { inf: "tun", praesens: ["tut", "er tut"], praet: "tat", perfekt: ["hat getan"], zh: "做, 弄", level: "A1-2" },
+      { inf: "brechen", praesens: ["bricht", "er bricht"], praet: "brach", perfekt: ["hat gebrochen"], zh: "折斷, 骨折", level: "A1-2" },
+      { inf: "scheinen", praesens: ["scheint", "er scheint"], praet: "schien", perfekt: ["hat geschienen"], zh: "照耀, 似乎", level: "A1-2" },
+      { inf: "gefallen", praesens: ["gefällt", "es gefällt", "er gefällt"], praet: "gefiel", perfekt: ["hat gefallen"], zh: "使喜愛, 中意", level: "A1-2" },
+      { inf: "halten", praesens: ["hält", "er hält"], praet: "hielt", perfekt: ["hat gehalten"], zh: "停下, 拿著, 遵守", level: "A1-2" },
+      { inf: "erhalten", praesens: ["erhält", "er erhält"], praet: "erhielt", perfekt: ["hat erhalten"], zh: "收到, 獲得", level: "A1-2" },
+      { inf: "treffen", praesens: ["trifft", "er trifft"], praet: "traf", perfekt: ["hat getroffen"], zh: "遇見, 擊中", level: "A1-2" },
+      { inf: "gewinnen", praesens: ["gewinnt", "er gewinnt"], praet: "gewann", perfekt: ["hat gewonnen"], zh: "贏, 獲勝", level: "A1-2" },
+      { inf: "werfen", praesens: ["wirft", "er wirft"], praet: "warf", perfekt: ["hat geworfen"], zh: "丟, 扔", level: "A1-2" },
+      { inf: "verlieren", praesens: ["verliert", "er verliert"], praet: "verlor", perfekt: ["hat verloren"], zh: "輸掉, 失去", level: "A1-2" },
+      { inf: "schießen", praesens: ["schießt", "er schießt"], praet: "schoss", perfekt: ["hat geschossen"], zh: "射擊, 踢球射門", level: "A1-2" },
+      { inf: "dürfen", praesens: ["darf", "er darf"], praet: "durfte", perfekt: ["hat gedurft"], zh: "被允許, 可以", level: "A1-2" },
+      { inf: "müssen", praesens: ["muss", "er muss"], praet: "musste", perfekt: ["hat gemusst"], zh: "必須", level: "A1-2" },
+      { inf: "empfehlen", praesens: ["empfiehlt", "er empfiehlt"], praet: "empfahl", perfekt: ["hat empfohlen"], zh: "推薦, 建議", level: "A1-2" },
+      { inf: "befehlen", praesens: ["befiehlt", "er befiehlt"], praet: "befahl", perfekt: ["hat befohlen"], zh: "命令", level: "A1-2" },
+      { inf: "lassen", praesens: ["lässt", "er lässt"], praet: "ließ", perfekt: ["hat gelassen"], zh: "讓, 留下, 放置", level: "A1-2" },
+      { inf: "verlassen", praesens: ["verlässt", "er verlässt"], praet: "verließ", perfekt: ["hat verlassen"], zh: "離開, 拋棄", level: "A1-2" },
+      { inf: "fliegen", praesens: ["fliegt", "er fliegt"], praet: "flog", perfekt: ["ist geflogen"], zh: "飛, 搭飛機", level: "A1-2" },
+      { inf: "riechen", praesens: ["riecht", "er riecht"], praet: "roch", perfekt: ["hat gerochen"], zh: "聞, 嗅", level: "A1-2" },
+      { inf: "werden", praesens: ["wird", "er wird"], praet: "wurde", perfekt: ["ist geworden"], zh: "成為, 變得", level: "A1-2" },
+      { inf: "sollen", praesens: ["soll", "er soll"], praet: "sollte", perfekt: ["hat gesollt"], zh: "應該要", level: "A1-2" },
+      { inf: "mögen", praesens: ["mag", "er mag"], praet: "mochte", perfekt: ["hat gemocht"], zh: "喜歡, 想要", level: "A1-2" },
+      { inf: "stehlen", praesens: ["stiehlt", "er stiehlt"], praet: "stahl", perfekt: ["hat gestohlen"], zh: "偷竊", level: "A1-2" },
+      { inf: "sitzen", praesens: ["sitzt", "er sitzt"], praet: "saß", perfekt: ["hat gesessen"], zh: "坐, 位於", level: "A1-2" },
+      { inf: "streichen", praesens: ["streicht", "er streicht"], praet: "strich", perfekt: ["hat gestrichen"], zh: "粉刷, 塗抹, 撫摸", level: "A1-2" },
+      { inf: "liegen", praesens: ["liegt", "er liegt"], praet: "lag", perfekt: ["hat gelegen"], zh: "躺著, 位於", level: "A1-2" },
+      { inf: "biegen", praesens: ["biegt", "er biegt"], praet: "bog", perfekt: ["hat gebogen"], zh: "使彎曲", level: "A1-2" },
+      { inf: "steigen", praesens: ["steigt", "er steigt"], praet: "stieg", perfekt: ["ist gestiegen"], zh: "上升, 攀登", level: "A1-2" },
+      { inf: "leihen", praesens: ["leiht", "er leiht"], praet: "lieh", perfekt: ["hat gelien", "hat geliehen"], zh: "借入, 借出", level: "A1-2" },
+      { inf: "raten", praesens: ["rät", "er rät"], praet: "riet", perfekt: ["hat geraten"], zh: "猜, 建議", level: "A1-2" },
+      { inf: "beraten", praesens: ["berät", "er berät"], praet: "beriet", perfekt: ["hat beraten"], zh: "諮詢, 提供建議", level: "A1-2" },
+      { inf: "schlagen", praesens: ["schlägt", "er schlägt"], praet: "schlug", perfekt: ["hat geschlagen"], zh: "打, 揍, 敲", level: "A1-2" },
+      { inf: "unternehmen", praesens: ["unternimmt", "er unternimmt"], praet: "unternahm", perfekt: ["hat unternommen"], zh: "從事(活動), 採取行動", level: "A1-2" },
+      { inf: "streiten", praesens: ["streitet", "er streitet"], praet: "stritt", perfekt: ["hat gestritten"], zh: "爭論, 爭辯", level: "A1-2" },
+      { inf: "werben", praesens: ["wirbt", "er wirbt"], praet: "warb", perfekt: ["hat geworben"], zh: "打廣告, 爭取", level: "A1-2" },
+      { inf: "empfangen", praesens: ["empfängt", "er empfängt"], praet: "empfing", perfekt: ["hat empfangen"], zh: "接收, 迎接", level: "A1-2" },
+      { inf: "denken", praesens: ["denkt", "er denkt"], praet: "dachte", perfekt: ["hat gedacht"], zh: "思考, 認為", level: "A1-2" },
+
+      // === B1 進階動詞 (講義第 11 ~ 13 頁獨立) ===
+      { inf: "wachsen", praesens: ["wächst", "er wächst"], praet: "wuchs", perfekt: ["ist gewachsen"], zh: "生長, 增長", level: "B1" },
+      { inf: "kennen", praesens: ["kennt", "er kennt"], praet: "kannte", perfekt: ["hat gekannt"], zh: "認識, 知道", level: "B1" },
+      { inf: "bitten", praesens: ["bittet", "er bittet"], praet: "bat", perfekt: ["hat gebeten"], zh: "請求", level: "B1" },
+      { inf: "treiben", praesens: ["treibt", "er treibt"], praet: "trieb", perfekt: ["hat getrieben"], zh: "從事, 驅趕, 漂浮", level: "B1" },
+      { inf: "übertreiben", praesens: ["übertreibt", "er übertreibt"], praet: "übertrieb", perfekt: ["hat übertrieben"], zh: "誇張, 誇大", level: "B1" },
+      { inf: "beschreiben", praesens: ["beschreibt", "er beschreibt"], praet: "beschrieb", perfekt: ["hat beschrieben"], zh: "描述, 描寫", level: "B1" },
+      { inf: "scheiden", praesens: ["scheidet", "er scheidet"], praet: "schied", perfekt: ["hat geschieden"], zh: "分開, 區分", level: "B1" },
+      { inf: "entscheiden", praesens: ["entscheidet", "er entscheidet"], praet: "entschied", perfekt: ["hat entschieden"], zh: "決定, 判決", level: "B1" },
+      { inf: "singen", praesens: ["singt", "er singt"], praet: "sang", perfekt: ["hat gesungen"], zh: "唱歌", level: "B1" },
+      { inf: "bestehen", praesens: ["besteht", "er besteht"], praet: "bestand", perfekt: ["hat bestanden"], zh: "通過(考試), 存在", level: "B1" },
+      { inf: "übernehmen", praesens: ["übernimmt", "er übernimmt"], praet: "übernahm", perfekt: ["hat übernommen"], zh: "接管, 承擔", level: "B1" }
     ];
 
-    // 弱變化測驗題庫：已完整加入 translation (中文翻譯)
     const rawNDeklExercises = [
       {
         sentence: "Der Chef führt ein wichtiges Gespräch mit _____ über das neue Projekt. (der Kollege)",
@@ -964,7 +1062,8 @@
     const commonPluralPool = ["-en", "-e", "-er", "-n", "-s", "-", "(Sg.)", "-nen", "-ien"];
 
     let vocabList = [...rawVocabulary];
-    let verbList = [...rawVerbs];
+    let selectedVerbLevel = "all";
+    let verbList = [...allVerbsMaster];
     let ndeklList = [...rawNDeklExercises];
     let currentIndex = 0;
     let currentVerbIndex = 0;
@@ -977,6 +1076,8 @@
     let isChineseFront = false;
 
     const modeSelect = document.getElementById('modeSelect');
+    const verbFilterBar = document.getElementById('verbFilterBar');
+    const filterBtns = document.querySelectorAll('.filter-btn');
     const cardSection = document.getElementById('cardSection');
     const quizSection = document.getElementById('quizSection');
     const verbSection = document.getElementById('verbSection');
@@ -1062,8 +1163,10 @@
       quizSection.classList.toggle('hidden', mode !== 'quiz');
       verbSection.classList.toggle('hidden', mode !== 'verb');
       ndeklSection.classList.toggle('hidden', mode !== 'ndekl');
+      verbFilterBar.classList.toggle('hidden', mode !== 'verb');
 
       if (mode === 'verb') {
+        updateVerbListByLevel();
         updateVerbDisplay();
         inputPraesens.focus();
       } else if (mode === 'ndekl') {
@@ -1078,6 +1181,28 @@
     modeSelect.addEventListener('change', (e) => {
       switchMode(e.target.value);
     });
+
+    // 動詞篩選按鈕監聽
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedVerbLevel = btn.getAttribute('data-level');
+        updateVerbListByLevel();
+        updateVerbDisplay();
+        inputPraesens.focus();
+      });
+    });
+
+    function updateVerbListByLevel() {
+      if (selectedVerbLevel === 'all') {
+        verbList = [...allVerbsMaster];
+      } else {
+        verbList = allVerbsMaster.filter(v => v.level === selectedVerbLevel);
+      }
+      verbList.sort(() => 0.5 - Math.random());
+      currentVerbIndex = 0;
+    }
 
     flipModeToggleBtn.addEventListener('click', () => {
       isChineseFront = !isChineseFront;
@@ -1149,6 +1274,8 @@
 
     function updateVerbDisplay() {
       const verb = verbList[currentVerbIndex];
+      const tagText = verb.level === 'B1' ? "動詞 B1 (p.11-13)" : (verb.level === 'A1-2' ? "動詞 A1-A2 (p.1-10)" : "動詞測驗");
+      verbPageTag.textContent = tagText;
       statusText.textContent = `動詞測驗：第 ${currentVerbIndex + 1} / ${verbList.length} 題`;
       progressBar.style.width = `${((currentVerbIndex + 1) / verbList.length) * 100}%`;
 
@@ -1343,7 +1470,6 @@
       inputPraesens.focus();
     });
 
-    // 弱變化測驗檢查邏輯：結果中清晰標示「句子中文翻譯」
     function checkNDeklAnswer() {
       if (isNDeklAnswered) return;
       const q = ndeklList[currentNDeklIndex];
@@ -1393,9 +1519,9 @@
       }
     });
 
-    // 初始化洗牌
+    // 初始化洗牌與載入
     vocabList.sort(() => 0.5 - Math.random());
-    verbList.sort(() => 0.5 - Math.random());
+    updateVerbListByLevel();
     ndeklList.sort(() => 0.5 - Math.random());
     updateDisplay();
   </script>
